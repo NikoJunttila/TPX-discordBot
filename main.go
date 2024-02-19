@@ -105,7 +105,8 @@ func main() {
 	}
 	defer dg.AutoModerationRuleDelete(guildID, rule.ID)
 	dg.AddHandler(func(s *discordgo.Session, e *discordgo.AutoModerationActionExecution) {
-		nWordCalc, err := utils.IncrementAndWriteToFile("nWordCount.txt")
+		/* 	nWordCalc, err := utils.IncrementAndWriteToFile("nWordCount.txt") */
+		nWordCalc, err := utils.IncrementAndWriteToFile()
 		if err != nil {
 			fmt.Println("Error:", err)
 		}

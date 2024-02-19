@@ -72,7 +72,7 @@ func GetMatch(matchId string, puuID string, country string, apiKey string) (stri
 			} else {
 				result += fmt.Sprintf("Time spent with gray screen %ds.\n", p.TimeSpentDead)
 			}
-			result += fmt.Sprintf("Pings OMW: %d, KYS: %d, Missing: %d, GetBack: %d. \n", p.OnMyWayPings, p.KysPing, p.MissingPing, p.GetBackPings)
+			result += fmt.Sprintf("Pings OMW: %d, KYS: %d, Missing: %d, GetBack: %d Danger:%d.\n", p.OnMyWayPings, p.KysPing, p.MissingPing, p.GetBackPings, p.DangerPing)
 			if p.Win {
 				result += "Boosted monkey won\n\n"
 			} else {

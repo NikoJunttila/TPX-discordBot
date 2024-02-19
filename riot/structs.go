@@ -78,4 +78,5 @@ type ParticipantDetails struct {
 	OnMyWayPings       int    `json:"onMyWayPings"`
 	KysPing            int    `json:"pushPings"`
 	MissingPing        int    `json:"enemyMissingPings"`
+	DangerPing         int    `json:"dangerPings"`
 }
