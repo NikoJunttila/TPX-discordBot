@@ -35,7 +35,7 @@ func GetMatch(matchId string, puuID string, country string, apiKey string) (stri
 	}
 	defer matchRes2.Body.Close()
 	if matchRes2.StatusCode != http.StatusOK {
-		fmt.Printf("Error: %s\n", matchRes2.Status)
+		fmt.Printf("Error get match: %s\n", matchRes2.Status)
 		return "", err
 	}
 	body2, err := io.ReadAll(matchRes2.Body)
@@ -66,13 +66,13 @@ func GetMatch(matchId string, puuID string, country string, apiKey string) (stri
 	}
 	for _, p := range matchInfo.Info.Participants {
 		if p.Puuid == puuID {
-			result = fmt.Sprintf("New %s game! \nPlayer: %s\nRole: %s , Champion: %s, lvl: %d\nKills: %d, Deaths: %d Assists: %d\nAlly jg camps stolen: %d. Enemy camps stolen: %d\nWards bought: %d. Wards placed: %d\n", queType, p.RiotName, p.RoleNew, p.ChampionName, p.ChampLevel, p.Kills, p.Deaths, p.Assists, p.JgCampsStolen, p.EnemyJGCampsStolen, p.Wards, p.WardsPlaces)
+			result = fmt.Sprintf("New %s game! \nPlayer: %s\nRole: %s , Champion: %s, lvl: %d\nKills: %d, Deaths: %d Assists: %d\nAlly jg camps stolen: %d, Enemy camps stolen: %d\nWards bought: %d. Wards placed: %d\n", queType, p.RiotName, p.RoleNew, p.ChampionName, p.ChampLevel, p.Kills, p.Deaths, p.Assists, p.JgCampsStolen, p.EnemyJGCampsStolen, p.Wards, p.WardsPlaces)
 			if p.TimeSpentDead > 60 {
 				result += fmt.Sprintf("Time wasted on dying %0.2fmin.\n", float32(p.TimeSpentDead)/60)
 			} else {
 				result += fmt.Sprintf("Time spent with gray screen %ds.\n", p.TimeSpentDead)
 			}
-			result += fmt.Sprintf("Pings OMW: %d, KYS: %d, Missing: %d, GetBack: %d Danger:%d.\n", p.OnMyWayPings, p.KysPing, p.MissingPing, p.GetBackPings, p.DangerPing)
+			result += fmt.Sprintf("Pings OMW: %d, KYS: %d, Missing: %d, GetBack: %d Danger: %d.\n", p.OnMyWayPings, p.KysPing, p.MissingPing, p.GetBackPings, p.DangerPing)
 			if p.Win {
 				result += "Boosted monkey won\n\n"
 			} else {
@@ -101,7 +101,7 @@ func GetPuuID(name string, tagLine string, apiKey string) (string, error) {
 	}
 	defer matchRes2.Body.Close()
 	if matchRes2.StatusCode != http.StatusOK {
-		fmt.Printf("Error: %s\n", matchRes2.Status)
+		fmt.Printf("Error getPuuId: %s\n", matchRes2.Status)
 		return "", err
 
 	}
@@ -118,4 +118,100 @@ func GetPuuID(name string, tagLine string, apiKey string) (string, error) {
 
 	}
 	return puuId.PuuID, nil
+}
+
+type CountingStats struct {
+	ownCamps    int
+	enemyCamps  int
+	win         int
+	deadTime    int
+	deaths      int
+	kills       int
+	wardsPlaced int
+	wardsBought int
+	pings       int
+	assists     int
+}
+
+func getMatchStats(matchId string, puuID string, country string, apiKey string) (CountingStats, error) {
+	var c CountingStats
+	var matchInfo MatchData
+	endPoint := fmt.Sprintf("https://%s.api.riotgames.com/lol/match/v5/matches/%s", country, matchId)
+	matchReq2, _ := http.NewRequest("GET", endPoint, nil)
+	matchReq2.Header.Set("X-Riot-Token", apiKey)
+	client := &http.Client{}
+	matchRes2, err := client.Do(matchReq2)
+	if err != nil {
+		fmt.Println("Error making HTTP request:", err)
+		return c, err
+	}
+	defer matchRes2.Body.Close()
+	if matchRes2.StatusCode != http.StatusOK {
+		fmt.Printf("Error get match stats: %s\n", matchRes2.Status)
+		return c, err
+	}
+	body2, err := io.ReadAll(matchRes2.Body)
+	if err != nil {
+		fmt.Println("Error copying response body:", err)
+		return c, err
+	}
+	// Unmarshal the JSON data into the struct
+	err = json.Unmarshal(body2, &matchInfo)
+	if err != nil {
+		fmt.Println("Error decoding JSON:", err)
+		return c, err
+	}
+	for _, p := range matchInfo.Info.Participants {
+		if p.Puuid == puuID {
+			c.ownCamps = p.JgCampsStolen
+			c.enemyCamps = p.EnemyJGCampsStolen
+			c.win = 0
+			if p.Win {
+				c.win = 1
+			}
+			c.deadTime = p.TimeSpentDead
+			c.deaths = p.Deaths
+			c.kills = p.Kills
+			c.assists = p.Assists
+			c.wardsBought = p.Wards
+			c.wardsPlaced = p.WardsPlaces
+			c.pings = p.GetBackPings + p.OnMyWayPings + p.KysPing + p.MissingPing + p.DangerPing
+		}
+	}
+	return c, nil
+}
+func PrintHistory(matchHistory []string, apiKey string, puuID string, country string, playerName string) (string, error) {
+	var c CountingStats
+	var err error
+	for i, g := range matchHistory {
+		inf, err := getMatchStats(g, puuID, country, apiKey)
+		if err != nil {
+			fmt.Println(err)
+			break
+		}
+		fmt.Println(i)
+		c.ownCamps += inf.ownCamps
+		c.enemyCamps += inf.enemyCamps
+		c.win += inf.win
+		c.deadTime += inf.deadTime
+		c.deaths += inf.deaths
+		c.kills += inf.kills
+		c.assists += inf.assists
+		c.wardsBought += inf.wardsBought
+		c.wardsPlaced += inf.wardsPlaced
+		c.pings += inf.pings
+	}
+	if err != nil {
+		fmt.Println("history loop: ", err)
+		return "", err
+	}
+	var result string
+	result = fmt.Sprintf("Avg stats for %s in last %d games \n", playerName, len(matchHistory))
+	result += fmt.Sprintf("own team camps stolen: %d, enemy team: %d \nWins: %d, deadge timer: %0.2f minutes \n", c.ownCamps, c.enemyCamps, c.win, float32(c.deadTime)/60)
+	result += fmt.Sprintf("Kills %d Deaths %d Assists %d and avg %.2f/%.2f/%.2f \n", c.kills, c.deaths, c.assists, float32(c.kills)/float32(len(matchHistory)), float32(c.deaths)/float32(len(matchHistory)), float32(c.assists)/float32(len(matchHistory)))
+	result += fmt.Sprintf("Wards bought: %d, placed: %d \n", c.wardsBought, c.wardsPlaced)
+	result += fmt.Sprintf("Total times pinged %d and avg per game %.2f \n", c.pings, float32(c.pings)/float32(len(matchHistory)))
+	result += fmt.Sprintf("WR = %.2f%%\n", float32(c.win)/float32(len(matchHistory))*100)
+
+	return result, nil
 }

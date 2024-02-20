@@ -62,7 +62,7 @@ type ParticipantDetails struct {
 	ChampLevel         int    `json:"champLevel"`
 	ChampionName       string `json:"championName"`
 	Role               string `json:"role"`
-	Wards              int    `json:"sightWardsBoughtInGame"`
+	Wards              int    `json:"detectorWardsPlaced"`
 	Puuid              string `json:"puuid"`
 	RiotName           string `json:"riotIdGameName"`
 	RoleNew            string `json:"teamPosition"`

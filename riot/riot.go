@@ -31,7 +31,7 @@ func GetMatchHistory(puuID string, count int, country string, apiKey string) ([]
 	}
 	defer matchRes.Body.Close()
 	if matchRes.StatusCode != http.StatusOK {
-		fmt.Printf("Error: %s\n", matchRes.Status)
+		fmt.Printf("Error GetMatchHistory: %s\n", matchRes.Status)
 		return matches, err
 	}
 	body2, err := io.ReadAll(matchRes.Body)
