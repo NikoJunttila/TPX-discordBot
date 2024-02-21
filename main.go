@@ -73,7 +73,6 @@ func main() {
 		if err != nil {
 			log.Panicf("Cannot create '%v' command: %v", v.Name, err)
 		}
-		fmt.Println("registered command")
 		registeredCommands[i] = cmd
 	}
 
@@ -128,7 +127,7 @@ func main() {
 		EventType:   discordgo.AutoModerationEventMessageSend,
 		TriggerType: discordgo.AutoModerationEventTriggerKeyword,
 		TriggerMetadata: &discordgo.AutoModerationTriggerMetadata{
-			KeywordFilter: []string{"*nigger*", "neekeri", "ngr", "nigga"},
+			KeywordFilter: []string{"*nigger*", "neekeri", "ngr", "nigga*", "*NIGGER*", "NEEKERI", "NGR", "NIGGA*"},
 			/* 	RegexPatterns: []string{}, */
 		},
 
@@ -143,6 +142,7 @@ func main() {
 		panic(err)
 	}
 	defer s.AutoModerationRuleDelete(guildID, rule.ID)
+
 	s.AddHandler(func(s *discordgo.Session, e *discordgo.AutoModerationActionExecution) {
 		nWordCalc, err := utils.IncrementAndWriteToFile("nWordCount.txt")
 		if err != nil {
