@@ -1,15 +1,11 @@
 package main
 
 import (
-	"context"
 	"database/sql"
-	"errors"
 	"fmt"
 	"log"
-	"math/rand"
 	"os"
 	"os/signal"
-	"time"
 
 	"github.com/bwmarrin/discordgo"
 	"github.com/joho/godotenv"
@@ -65,13 +61,13 @@ func main() {
 	if BotToken == "" {
 		fmt.Println("port not found in env")
 	}
-	guildID := os.Getenv("GUILD_ID")
-	//guildID := os.Getenv("TPX_ID")
+	//guildID := os.Getenv("GUILD_ID")
+	guildID := os.Getenv("TPX_ID")
 	if guildID == "" {
 		fmt.Println("port not found in env")
 	}
-	channelID := os.Getenv("channel_ID")
-	//channelID := os.Getenv("general2")
+	//channelID := os.Getenv("channel_ID")
+	channelID := os.Getenv("general2")
 	if channelID == "" {
 		fmt.Println("port not found in env")
 	}
@@ -130,16 +126,6 @@ func main() {
 			sendGameStatus(s, result, channelID)
 		}
 	})
-	c.AddFunc("@every 50m", func() {
-		randomNumber := rand.Intn(6)
-		if randomNumber == 3 {
-			responses := []string{"top gap", "neekeri", "java enjoyer", "If you were any more inbred, you'd be a sandwich", "Your map awareness is so bad, even Twisted Fate wouldn't ult to save you.", "Not even Olaf ult could prevent you from being disabled",
-				"I'd call you cancer but at least cancer gets kills", "If i wanted to kill myself i'd jump up to your ego and jump down to your IQ.", "Even the mars curiosity rover has faster reaction time than you", "Even Christopher Columbus had better map awareness than you"}
-			rand2 := rand.Intn(len(responses) + 1)
-			sendTag(s, responses[rand2], channelID, "685511498641965089")
-		}
-
-	})
 	c.AddFunc("@every 1d", func() {
 		fmt.Print("\n******************************\n*\n* new match \n*\n*******************************\n")
 		fmt.Print("\n******************************\n*\n* new match \n*\n*******************************\n")
@@ -151,8 +137,8 @@ func main() {
 		EventType:   discordgo.AutoModerationEventMessageSend,
 		TriggerType: discordgo.AutoModerationEventTriggerKeyword,
 		TriggerMetadata: &discordgo.AutoModerationTriggerMetadata{
-			KeywordFilter: []string{"*nigger*", "neekeri", "ngr", "nigga*", "*NIGGER*", "NEEKERI", "NGR", "NIGGA*"},
-			/* 	RegexPatterns: []string{}, */
+			KeywordFilter: []string{"*nigger*", "neekeri", "ngr", "nigga*", "*NIGGER*", "NEEKERI", "NGR", "NIGGA*", "nekru*"},
+			//RegexPatterns: []string{},
 		},
 
 		Enabled: &enabled,
@@ -167,51 +153,7 @@ func main() {
 	}
 	defer s.AutoModerationRuleDelete(guildID, rule.ID)
 
-	s.AddHandler(func(s *discordgo.Session, e *discordgo.AutoModerationActionExecution) {
-		wordCount := 1
-		guildCount := 1
-		dbCtx := context.Background()
-		user, err := apiCfg.DB.GetUser(dbCtx, e.UserID)
-		if errors.Is(err, sql.ErrNoRows) {
-			apiCfg.DB.CreateUser(dbCtx, database.CreateUserParams{
-				ID:        e.UserID,
-				CreatedAt: time.Now().UTC(),
-				UpdatedAt: time.Now().UTC(),
-				Count:     1,
-			})
-		} else if err != nil {
-			fmt.Println(err)
-			return
-		} else {
-
-			fmt.Println(user)
-			if user.Count > 0 {
-				wordCount = int(user.Count)
-			}
-		}
-		/* 		guild, err := apiCfg.DB.GetGuild(dbCtx, e.GuildID)
-		   		if err.Error() == "sql: no rows in result set" {
-		   			_, err = apiCfg.DB.CreateGuild(dbCtx, database.CreateGuildParams{
-		   				ID:        e.UserID,
-		   				CreatedAt: time.Now().UTC(),
-		   				UpdatedAt: time.Now().UTC(),
-		   				Count:     1,
-		   			})
-		   			if err != nil {
-		   				fmt.Println(err)
-		   				return
-		   			}
-		   		} else if err != nil {
-		   			fmt.Println(err)
-		   			return
-		   		} else {
-		   			guildCount = int(guild.Count)
-		   		} */
-		mention := "<@" + e.UserID + "> "
-		message := fmt.Sprintf("Hei! Ei N-pommia tässä discordissa! %s on sanonut sen sanan %d kertaa.\n Yhteensä sanottu tässä killassa %d kertaa!", mention, wordCount, guildCount)
-		//fmt.Println(count, err)
-		s.ChannelMessageSend(e.ChannelID, message)
-	})
+	s.AddHandler(apiCfg.badWordCounter)
 	s.AddHandler(messageCreate)
 	// Wait here until CTRL-C or other term signal is received.
 	stop := make(chan os.Signal, 1)

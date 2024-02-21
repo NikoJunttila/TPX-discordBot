@@ -59,24 +59,33 @@ type MatchInfo struct {
 }
 
 type ParticipantDetails struct {
-	ChampLevel         int    `json:"champLevel"`
-	ChampionName       string `json:"championName"`
-	Role               string `json:"role"`
-	Wards              int    `json:"detectorWardsPlaced"`
-	Puuid              string `json:"puuid"`
-	RiotName           string `json:"riotIdGameName"`
-	RoleNew            string `json:"teamPosition"`
-	JgCampsStolen      int    `json:"totalAllyJungleMinionsKilled"`
-	EnemyJGCampsStolen int    `json:"totalEnemyJungleMinionsKilled"`
-	TimeSpentDead      int    `json:"totalTimeSpentDead"`
-	WardsPlaces        int    `json:"wardsPlaced"`
-	Win                bool   `json:"win"`
-	Deaths             int    `json:"deaths"`
-	Assists            int    `json:"assists"`
-	Kills              int    `json:"kills"`
-	GetBackPings       int    `json:"getBackPings"`
-	OnMyWayPings       int    `json:"onMyWayPings"`
-	KysPing            int    `json:"pushPings"`
-	MissingPing        int    `json:"enemyMissingPings"`
-	DangerPing         int    `json:"dangerPings"`
+	ChampLevel         int               `json:"champLevel"`
+	ChampionName       string            `json:"championName"`
+	Role               string            `json:"role"`
+	Wards              int               `json:"detectorWardsPlaced"`
+	Puuid              string            `json:"puuid"`
+	RiotName           string            `json:"riotIdGameName"`
+	RoleNew            string            `json:"teamPosition"`
+	JgCampsStolen      int               `json:"totalAllyJungleMinionsKilled"`
+	EnemyJGCampsStolen int               `json:"totalEnemyJungleMinionsKilled"`
+	TimeSpentDead      int               `json:"totalTimeSpentDead"`
+	WardsPlaces        int               `json:"wardsPlaced"`
+	Win                bool              `json:"win"`
+	Deaths             int               `json:"deaths"`
+	Assists            int               `json:"assists"`
+	Kills              int               `json:"kills"`
+	GetBackPings       int               `json:"getBackPings"`
+	OnMyWayPings       int               `json:"onMyWayPings"`
+	KysPing            int               `json:"pushPings"`
+	MissingPing        int               `json:"enemyMissingPings"`
+	DangerPing         int               `json:"dangerPings"`
+	DmgDealt           int               `json:"totalDamageDealt"`
+	TimePlayed         int               `json:"timePlayed"`
+	Challenges         ChallengesDetails `json:"challenges"`
+}
+type ChallengesDetails struct {
+	DmgPerMinute   float32 `json:"damagePerMinute"`
+	MinionsFirst10 int     `json:"laneMinionsFirst10Minutes"`
+	LaneAdvantage  int     `json:"laningPhaseGoldExpAdvantage"`
+	SoloBolo       int     `json:"soloKills"`
 }

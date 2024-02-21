@@ -73,8 +73,11 @@ func GetMatch(matchId string, puuID string, country string, apiKey string) (stri
 				result += fmt.Sprintf("Time spent with gray screen %ds.\n", p.TimeSpentDead)
 			}
 			result += fmt.Sprintf("Pings OMW: %d, KYS: %d, Missing: %d, GetBack: %d Danger: %d.\n", p.OnMyWayPings, p.KysPing, p.MissingPing, p.GetBackPings, p.DangerPing)
+			result += fmt.Sprintf("Total dmg: %d , per min: %.2f, \n", p.DmgDealt, p.Challenges.DmgPerMinute)
+			result += fmt.Sprintf("Lane minions first 10min: %d \n", p.Challenges.MinionsFirst10)
+			result += fmt.Sprintf("Solo BOLOS: %d \n", p.Challenges.SoloBolo)
 			if p.Win {
-				result += "Boosted monkey won\n\n"
+				result += "GG WP won game\n\n"
 			} else {
 				result += fmt.Sprintf("Game lost: GG %s GAP GIT GUUD NOOB\n\n", p.RoleNew)
 			}
@@ -131,6 +134,10 @@ type CountingStats struct {
 	wardsBought int
 	pings       int
 	assists     int
+	soloKills   int
+	laneMinions int
+	//laneAdvantage int
+	dmgPermin float32
 }
 
 func getMatchStats(matchId string, puuID string, country string, apiKey string) (CountingStats, error) {
@@ -176,6 +183,9 @@ func getMatchStats(matchId string, puuID string, country string, apiKey string) 
 			c.wardsBought = p.Wards
 			c.wardsPlaced = p.WardsPlaces
 			c.pings = p.GetBackPings + p.OnMyWayPings + p.KysPing + p.MissingPing + p.DangerPing
+			c.soloKills = p.Challenges.SoloBolo
+			c.laneMinions = p.Challenges.MinionsFirst10
+			c.dmgPermin = p.Challenges.DmgPerMinute
 		}
 	}
 	return c, nil
@@ -200,6 +210,9 @@ func PrintHistory(matchHistory []string, apiKey string, puuID string, country st
 		c.wardsBought += inf.wardsBought
 		c.wardsPlaced += inf.wardsPlaced
 		c.pings += inf.pings
+		c.soloKills += inf.soloKills
+		c.laneMinions += inf.laneMinions
+		c.dmgPermin += inf.dmgPermin
 	}
 	if err != nil {
 		fmt.Println("history loop: ", err)
@@ -211,6 +224,7 @@ func PrintHistory(matchHistory []string, apiKey string, puuID string, country st
 	result += fmt.Sprintf("Kills %d Deaths %d Assists %d and avg %.2f/%.2f/%.2f \n", c.kills, c.deaths, c.assists, float32(c.kills)/float32(len(matchHistory)), float32(c.deaths)/float32(len(matchHistory)), float32(c.assists)/float32(len(matchHistory)))
 	result += fmt.Sprintf("Wards bought: %d, placed: %d \n", c.wardsBought, c.wardsPlaced)
 	result += fmt.Sprintf("Total times pinged %d and avg per game %.2f \n", c.pings, float32(c.pings)/float32(len(matchHistory)))
+	result += fmt.Sprintf("Solo Bolos: %d, DMG per min %.2f, minions first 10min avg: %.2f \n", c.soloKills, c.dmgPermin/float32(len(matchHistory)), float32(c.laneMinions)/float32(len(matchHistory)))
 	result += fmt.Sprintf("WR = %.2f%%\n", float32(c.win)/float32(len(matchHistory))*100)
 
 	return result, nil

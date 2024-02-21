@@ -13,11 +13,20 @@ var (
 
 	commands = []*discordgo.ApplicationCommand{
 		{
-			Name: "basic-command",
+			Name: "hello",
 			// All commands and options must have a description
 			// Commands/options without description will fail the registration
 			// of the command.
-			Description: "Basic command",
+			Description: "say hello user",
+			Options: []*discordgo.ApplicationCommandOption{
+
+				{
+					Type:        discordgo.ApplicationCommandOptionString,
+					Name:        "name",
+					Description: "user name",
+					Required:    true,
+				},
+			},
 		},
 		{
 			Name:        "basic-command-with-files",
@@ -63,11 +72,32 @@ var (
 	}
 
 	commandHandlers = map[string]func(s *discordgo.Session, i *discordgo.InteractionCreate){
-		"basic-command": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+		"hello": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+			options := i.ApplicationCommandData().Options
+
+			// Or convert the slice into a map
+			optionMap := make(map[string]*discordgo.ApplicationCommandInteractionDataOption, len(options))
+			for _, opt := range options {
+				optionMap[opt.Name] = opt
+			}
+			var name string
+			if option, ok := optionMap["name"]; ok {
+				name = option.StringValue()
+			}
+			mention := "<@" + name + "> "
+			response := fmt.Sprintf("Hello %s!", mention)
+			if i.Member.User.ID != "" {
+				fmt.Println(i.Member.User.ID)
+				if i.Member.User.ID == "249254722668724225" {
+					response = "Neekeri"
+					sendTag(s, response, i.ChannelID, name)
+					return
+				}
+			}
 			s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
 				Type: discordgo.InteractionResponseChannelMessageWithSource,
 				Data: &discordgo.InteractionResponseData{
-					Content: "Hey there! Congratulations, you just executed your first slash command",
+					Content: response,
 				},
 			})
 		},
