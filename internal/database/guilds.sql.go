@@ -55,3 +55,19 @@ func (q *Queries) GetGuild(ctx context.Context, id string) (Guildcount, error) {
 	)
 	return i, err
 }
+
+const updateGuild = `-- name: UpdateGuild :exec
+UPDATE guildCount
+  set count = count + $2
+WHERE id = $1
+`
+
+type UpdateGuildParams struct {
+	ID    string
+	Count int32
+}
+
+func (q *Queries) UpdateGuild(ctx context.Context, arg UpdateGuildParams) error {
+	_, err := q.db.ExecContext(ctx, updateGuild, arg.ID, arg.Count)
+	return err
+}
