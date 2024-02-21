@@ -8,6 +8,6 @@ Select * FROM guildCount WHERE id = $1;
 --
 --
 UPDATE guildCount
-  set count = count + $2,
+  set count = count + $2
 WHERE id = $1;
 --

@@ -7,6 +7,6 @@ RETURNING *;
 Select * FROM usersCount WHERE id = $1;
 --
 UPDATE usersCount
-  set count = count + $2,
+  set count = count + $2
 WHERE id = $1;
 --
