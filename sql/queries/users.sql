@@ -5,7 +5,7 @@ RETURNING *;
 --
 -- name: GetUser :one
 Select * FROM usersCount WHERE id = $1;
---
+-- UpdateUser: exec
 UPDATE usersCount
   set count = count + $2
 WHERE id = $1;

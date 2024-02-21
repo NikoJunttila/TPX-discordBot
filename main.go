@@ -1,21 +1,34 @@
 package main
 
 import (
+	"context"
+	"database/sql"
+	"errors"
 	"fmt"
 	"log"
 	"math/rand"
 	"os"
 	"os/signal"
+	"time"
 
 	"github.com/bwmarrin/discordgo"
 	"github.com/joho/godotenv"
+	"github.com/nikojunttila/discord/internal/database"
 	"github.com/nikojunttila/discord/riot"
-	"github.com/nikojunttila/discord/utils"
+
+	//"github.com/nikojunttila/discord/utils"
+	_ "github.com/lib/pq"
 	"github.com/robfig/cron/v3"
 )
 
-var s *discordgo.Session
-var globalAPi string
+var (
+	s         *discordgo.Session
+	globalAPi string
+)
+
+type apiConfig struct {
+	DB *database.Queries
+}
 
 func init() {
 	godotenv.Load()
@@ -37,17 +50,28 @@ func init() {
 
 func main() {
 	godotenv.Load()
+	dbURL := os.Getenv("DB_URL")
+	if dbURL == "" {
+		log.Fatal("DB_URL is not found")
+	}
+	connection, err := sql.Open("postgres", dbURL)
+	if err != nil {
+		log.Fatal("cant connect to database", err)
+	}
+	apiCfg := apiConfig{
+		DB: database.New(connection),
+	}
 	BotToken := os.Getenv("DISCORD")
 	if BotToken == "" {
 		fmt.Println("port not found in env")
 	}
-	//guildID := os.Getenv("GUILD_ID")
-	guildID := os.Getenv("TPX_ID")
+	guildID := os.Getenv("GUILD_ID")
+	//guildID := os.Getenv("TPX_ID")
 	if guildID == "" {
 		fmt.Println("port not found in env")
 	}
-	//channelID := os.Getenv("channel_ID")
-	channelID := os.Getenv("general2")
+	channelID := os.Getenv("channel_ID")
+	//channelID := os.Getenv("general2")
 	if channelID == "" {
 		fmt.Println("port not found in env")
 	}
@@ -62,7 +86,7 @@ func main() {
 	s.AddHandler(func(s *discordgo.Session, r *discordgo.Ready) {
 		log.Printf("Logged in as: %v#%v", s.State.User.Username, s.State.User.Discriminator)
 	})
-	err := s.Open()
+	err = s.Open()
 	if err != nil {
 		fmt.Println("error opening connection,", err)
 		return
@@ -144,11 +168,49 @@ func main() {
 	defer s.AutoModerationRuleDelete(guildID, rule.ID)
 
 	s.AddHandler(func(s *discordgo.Session, e *discordgo.AutoModerationActionExecution) {
-		nWordCalc, err := utils.IncrementAndWriteToFile("nWordCount.txt")
-		if err != nil {
-			fmt.Println("Error nwordCounter:", err)
+		wordCount := 1
+		guildCount := 1
+		dbCtx := context.Background()
+		user, err := apiCfg.DB.GetUser(dbCtx, e.UserID)
+		if errors.Is(err, sql.ErrNoRows) {
+			apiCfg.DB.CreateUser(dbCtx, database.CreateUserParams{
+				ID:        e.UserID,
+				CreatedAt: time.Now().UTC(),
+				UpdatedAt: time.Now().UTC(),
+				Count:     1,
+			})
+		} else if err != nil {
+			fmt.Println(err)
+			return
+		} else {
+
+			fmt.Println(user)
+			if user.Count > 0 {
+				wordCount = int(user.Count)
+			}
 		}
-		s.ChannelMessageSend(e.ChannelID, fmt.Sprintf("Hei! Ei N-pommia tässä discordissa! N-sana sanottu %d kertaa\n", nWordCalc))
+		/* 		guild, err := apiCfg.DB.GetGuild(dbCtx, e.GuildID)
+		   		if err.Error() == "sql: no rows in result set" {
+		   			_, err = apiCfg.DB.CreateGuild(dbCtx, database.CreateGuildParams{
+		   				ID:        e.UserID,
+		   				CreatedAt: time.Now().UTC(),
+		   				UpdatedAt: time.Now().UTC(),
+		   				Count:     1,
+		   			})
+		   			if err != nil {
+		   				fmt.Println(err)
+		   				return
+		   			}
+		   		} else if err != nil {
+		   			fmt.Println(err)
+		   			return
+		   		} else {
+		   			guildCount = int(guild.Count)
+		   		} */
+		mention := "<@" + e.UserID + "> "
+		message := fmt.Sprintf("Hei! Ei N-pommia tässä discordissa! %s on sanonut sen sanan %d kertaa.\n Yhteensä sanottu tässä killassa %d kertaa!", mention, wordCount, guildCount)
+		//fmt.Println(count, err)
+		s.ChannelMessageSend(e.ChannelID, message)
 	})
 	s.AddHandler(messageCreate)
 	// Wait here until CTRL-C or other term signal is received.
