@@ -10,3 +10,9 @@ UPDATE usersCount
   set count = count + $2
 WHERE id = $1;
 --
+-- name: HighscoreUsers :many
+SELECT *
+FROM userscount
+ORDER BY count DESC
+LIMIT 5;
+--

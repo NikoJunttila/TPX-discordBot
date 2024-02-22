@@ -66,7 +66,7 @@ func GetMatch(matchId string, puuID string, country string, apiKey string) (stri
 	}
 	for _, p := range matchInfo.Info.Participants {
 		if p.Puuid == puuID {
-			result = fmt.Sprintf("New %s game! \nPlayer: %s\nRole: %s , Champion: %s, lvl: %d\nKills: %d, Deaths: %d Assists: %d\nAlly jg camps stolen: %d, Enemy camps stolen: %d\nWards bought: %d. Wards placed: %d\n", queType, p.RiotName, p.RoleNew, p.ChampionName, p.ChampLevel, p.Kills, p.Deaths, p.Assists, p.JgCampsStolen, p.EnemyJGCampsStolen, p.Wards, p.WardsPlaces)
+			result = fmt.Sprintf("New %s game! \nPlayer: %s\nRole: %s , Champion: %s, lvl: %d\nKills: %d, Deaths: %d Assists: %d\nAlly jg camps stolen: %d, Enemy camps stolen: %d\nVisionWards placed: %d. Wards total placed: %d\n", queType, p.RiotName, p.RoleNew, p.ChampionName, p.ChampLevel, p.Kills, p.Deaths, p.Assists, p.JgCampsStolen, p.EnemyJGCampsStolen, p.Wards, p.WardsPlaces)
 			if p.TimeSpentDead > 60 {
 				result += fmt.Sprintf("Time wasted on dying %0.2fmin.\n", float32(p.TimeSpentDead)/60)
 			} else {
