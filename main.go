@@ -100,39 +100,23 @@ func main() {
 	defer s.Close()
 
 	c := cron.New()
-	/* 	type checkMatch struct{
-		name string
-		hashtag string
-		puuID string
-		region string
-		lastMatch string
-	} */
+	usersToCheck, err := getFollows()
+	if err != nil {
+		log.Panic(err)
+	}
 
-	alphaChecker, puuID := riot.InitStats("Alphass", "EUW", "EUROPE", apiKey)
-	bziChecker, puuID2 := riot.InitStats("Best Voli Iraq", "EUW", "EUROPE", apiKey)
-	lenkkisChecker, puuID3 := riot.InitStats("lenkkis", "SNEED", "EUROPE", apiKey)
-	kadeemChecker, puuID4 := riot.InitStats("kadeem", "718", "AMERICAS", apiKey)
-	var check bool
 	c.AddFunc("@every 1m", func() {
-		alphaChecker, check = riot.CheckLastMatch(alphaChecker, puuID, "EUROPE", apiKey)
-		if check {
-			result, _ := riot.GetMatch(alphaChecker, puuID, "EUROPE", apiKey)
-			sendGameStatus(s, result, channelID)
-		}
-		bziChecker, check = riot.CheckLastMatch(bziChecker, puuID2, "EUROPE", apiKey)
-		if check {
-			result, _ := riot.GetMatch(bziChecker, puuID2, "EUROPE", apiKey)
-			sendGameStatus(s, result, channelID)
-		}
-		lenkkisChecker, check = riot.CheckLastMatch(lenkkisChecker, puuID3, "EUROPE", apiKey)
-		if check {
-			result, _ := riot.GetMatch(lenkkisChecker, puuID3, "EUROPE", apiKey)
-			sendGameStatus(s, result, channelID)
-		}
-		kadeemChecker, check = riot.CheckLastMatch(kadeemChecker, puuID4, "AMERICAS", apiKey)
-		if check {
-			result, _ := riot.GetMatch(kadeemChecker, puuID4, "AMERICAS", apiKey)
-			sendGameStatus(s, result, channelID)
+		for i, user := range usersToCheck {
+			newMatch, check := riot.CheckLastMatch(user.lastMatch, user.puuID, user.region, globalAPi)
+			if check {
+				usersToCheck[i].lastMatch = newMatch
+				result, err := riot.GetMatch(newMatch, user.puuID, user.region, globalAPi)
+				if err != nil {
+					fmt.Println("Loop check: ", err)
+					return
+				}
+				sendGameStatus(s, result, channelID)
+			}
 		}
 	})
 	c.AddFunc("@every 1d", func() {

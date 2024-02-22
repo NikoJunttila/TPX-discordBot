@@ -68,6 +68,31 @@ var (
 			Name:        "followups",
 			Description: "Followup messages",
 		},
+		{
+			Name:        "addtofollows",
+			Description: "add user to live tracking",
+			Options: []*discordgo.ApplicationCommandOption{
+
+				{
+					Type:        discordgo.ApplicationCommandOptionString,
+					Name:        "name",
+					Description: "acc name",
+					Required:    true,
+				},
+				{
+					Type:        discordgo.ApplicationCommandOptionString,
+					Name:        "hashtag",
+					Description: "String option",
+					Required:    true,
+				},
+				{
+					Type:        discordgo.ApplicationCommandOptionString,
+					Name:        "europeoramericas",
+					Description: "europe or americas",
+					Required:    true,
+				},
+			},
+		},
 	}
 
 	commandHandlers = map[string]func(s *discordgo.Session, i *discordgo.InteractionCreate){
@@ -204,6 +229,51 @@ var (
 					// (user who triggered the command)
 					Flags:   discordgo.MessageFlagsEphemeral,
 					Content: "Surprise!",
+				},
+			})
+		},
+		"addtofollows": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+			// Access options in the order provided by the user.
+			options := i.ApplicationCommandData().Options
+
+			// Or convert the slice into a map
+			optionMap := make(map[string]*discordgo.ApplicationCommandInteractionDataOption, len(options))
+			for _, opt := range options {
+				optionMap[opt.Name] = opt
+			}
+			type infos struct {
+				name    string
+				hashtag string
+				region  string
+			}
+			var inf infos
+
+			if option, ok := optionMap["name"]; ok {
+				inf.name = option.StringValue()
+			}
+
+			if opt, ok := optionMap["hashtag"]; ok {
+				inf.hashtag = opt.StringValue()
+			}
+			if opt, ok := optionMap["europeoramericas"]; ok {
+				inf.region = opt.StringValue()
+			}
+			fmt.Println(inf)
+			err := AddToDB(inf.name, inf.hashtag, inf.region)
+			if err != nil {
+				s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+					// Ignore type for now, they will be discussed in "responses"
+					Type: discordgo.InteractionResponseChannelMessageWithSource,
+					Data: &discordgo.InteractionResponseData{
+						Content: "Failed to add user to tracking feed. \n",
+					},
+				})
+			}
+			s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+				// Ignore type for now, they will be discussed in "responses"
+				Type: discordgo.InteractionResponseChannelMessageWithSource,
+				Data: &discordgo.InteractionResponseData{
+					Content: fmt.Sprintf("Added user %s to tracking feed\n", inf.name),
 				},
 			})
 		},
