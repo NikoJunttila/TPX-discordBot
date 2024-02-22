@@ -7,7 +7,46 @@ package database
 
 import (
 	"context"
+	"time"
+
+	"github.com/google/uuid"
 )
+
+const createFollow = `-- name: CreateFollow :one
+INSERT INTO follow_users(id,created_at,account_name,hashtag,puuID,region)
+VALUES($1,$2,$3,$4,$5,$6)
+RETURNING id, created_at, account_name, hashtag, puuid, region
+`
+
+type CreateFollowParams struct {
+	ID          uuid.UUID
+	CreatedAt   time.Time
+	AccountName string
+	Hashtag     string
+	Puuid       string
+	Region      string
+}
+
+func (q *Queries) CreateFollow(ctx context.Context, arg CreateFollowParams) (FollowUser, error) {
+	row := q.db.QueryRowContext(ctx, createFollow,
+		arg.ID,
+		arg.CreatedAt,
+		arg.AccountName,
+		arg.Hashtag,
+		arg.Puuid,
+		arg.Region,
+	)
+	var i FollowUser
+	err := row.Scan(
+		&i.ID,
+		&i.CreatedAt,
+		&i.AccountName,
+		&i.Hashtag,
+		&i.Puuid,
+		&i.Region,
+	)
+	return i, err
+}
 
 const getFollowed = `-- name: GetFollowed :many
 Select id, created_at, account_name, hashtag, puuid, region FROM follow_users
