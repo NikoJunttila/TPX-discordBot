@@ -6,7 +6,18 @@ package database
 
 import (
 	"time"
+
+	"github.com/google/uuid"
 )
+
+type FollowUser struct {
+	ID          uuid.UUID
+	CreatedAt   time.Time
+	AccountName string
+	Hashtag     string
+	Puuid       string
+	Region      string
+}
 
 type Guildcount struct {
 	ID        string
