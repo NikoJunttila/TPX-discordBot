@@ -56,6 +56,41 @@ func (q *Queries) GetGuild(ctx context.Context, id string) (Guildcount, error) {
 	return i, err
 }
 
+const highscoreGuild = `-- name: HighscoreGuild :many
+SELECT id, created_at, updated_at, count
+FROM guildcount
+ORDER BY count DESC
+LIMIT 5
+`
+
+func (q *Queries) HighscoreGuild(ctx context.Context) ([]Guildcount, error) {
+	rows, err := q.db.QueryContext(ctx, highscoreGuild)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Guildcount
+	for rows.Next() {
+		var i Guildcount
+		if err := rows.Scan(
+			&i.ID,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+			&i.Count,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const updateGuild = `-- name: UpdateGuild :exec
 UPDATE guildCount
   set count = count + $2

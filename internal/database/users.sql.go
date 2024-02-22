@@ -56,6 +56,41 @@ func (q *Queries) GetUser(ctx context.Context, id string) (Userscount, error) {
 	return i, err
 }
 
+const highscoreUsers = `-- name: HighscoreUsers :many
+SELECT id, created_at, updated_at, count
+FROM userscount
+ORDER BY count DESC
+LIMIT 5
+`
+
+func (q *Queries) HighscoreUsers(ctx context.Context) ([]Userscount, error) {
+	rows, err := q.db.QueryContext(ctx, highscoreUsers)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Userscount
+	for rows.Next() {
+		var i Userscount
+		if err := rows.Scan(
+			&i.ID,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+			&i.Count,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const updateUser = `-- name: UpdateUser :exec
 UPDATE usersCount
   set count = count + $2
