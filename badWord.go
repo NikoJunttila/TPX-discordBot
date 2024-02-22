@@ -65,3 +65,26 @@ func (apiCfg *apiConfig) badWordCounter(s *discordgo.Session, e *discordgo.AutoM
 	//fmt.Println(count, err)
 	s.ChannelMessageSend(e.ChannelID, message)
 }
+func (api *apiConfig) getHighscores() (string, error) {
+	dbCtx := context.Background()
+	highscores, err := api.DB.HighscoreUsers(dbCtx)
+	if err != nil {
+		fmt.Println("Getting highscores:", err)
+		return "", err
+	}
+	var highscoresMessage string
+	highscoresMessage = "Highscores for N-WORD count: \n"
+	for i, user := range highscores {
+		userName, err := s.User(user.ID)
+		if err != nil {
+			fmt.Println("Error fetching user information:", err)
+			return "", err
+		}
+		if len(userName.Username) > 0 {
+			highscoresMessage += fmt.Sprintf("%d. %s - %d\n", i+1, userName.Username, user.Count)
+		} else {
+			highscoresMessage += fmt.Sprintf("%d. Unknown - %d\n", i+1, user.Count)
+		}
+	}
+	return highscoresMessage, nil
+}

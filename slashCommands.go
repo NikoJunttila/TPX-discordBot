@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"strings"
 
 	"github.com/bwmarrin/discordgo"
 	"github.com/nikojunttila/discord/riot"
@@ -29,8 +28,8 @@ var (
 			},
 		},
 		{
-			Name:        "basic-command-with-files",
-			Description: "Basic command with files",
+			Name:        "highscores",
+			Description: "highscores for N-word count",
 		},
 		{
 			Name:        "opgg",
@@ -101,18 +100,21 @@ var (
 				},
 			})
 		},
-		"basic-command-with-files": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+		"highscores": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+			response, err := apiCfg.getHighscores()
+			if err != nil {
+				fmt.Println(err)
+				s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+					Type: discordgo.InteractionResponseChannelMessageWithSource,
+					Data: &discordgo.InteractionResponseData{
+						Content: "Error getting highscores. Try again later.",
+					},
+				})
+			}
 			s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
 				Type: discordgo.InteractionResponseChannelMessageWithSource,
 				Data: &discordgo.InteractionResponseData{
-					Content: "Hey there! Congratulations, you just executed your first slash command with a file in the response",
-					Files: []*discordgo.File{
-						{
-							ContentType: "text/plain",
-							Name:        "test.txt",
-							Reader:      strings.NewReader("Hello Discord!!"),
-						},
-					},
+					Content: response,
 				},
 			})
 		},

@@ -17,14 +17,15 @@ import (
 	"github.com/robfig/cron/v3"
 )
 
-var (
-	s         *discordgo.Session
-	globalAPi string
-)
-
 type apiConfig struct {
 	DB *database.Queries
 }
+
+var (
+	s         *discordgo.Session
+	globalAPi string
+	apiCfg    apiConfig
+)
 
 func init() {
 	godotenv.Load()
@@ -54,7 +55,7 @@ func main() {
 	if err != nil {
 		log.Fatal("cant connect to database", err)
 	}
-	apiCfg := apiConfig{
+	apiCfg = apiConfig{
 		DB: database.New(connection),
 	}
 	BotToken := os.Getenv("DISCORD")
@@ -99,6 +100,14 @@ func main() {
 	defer s.Close()
 
 	c := cron.New()
+	/* 	type checkMatch struct{
+		name string
+		hashtag string
+		puuID string
+		region string
+		lastMatch string
+	} */
+
 	alphaChecker, puuID := riot.InitStats("Alphass", "EUW", "EUROPE", apiKey)
 	bziChecker, puuID2 := riot.InitStats("Best Voli Iraq", "EUW", "EUROPE", apiKey)
 	lenkkisChecker, puuID3 := riot.InitStats("lenkkis", "SNEED", "EUROPE", apiKey)
@@ -137,7 +146,7 @@ func main() {
 		EventType:   discordgo.AutoModerationEventMessageSend,
 		TriggerType: discordgo.AutoModerationEventTriggerKeyword,
 		TriggerMetadata: &discordgo.AutoModerationTriggerMetadata{
-			KeywordFilter: []string{"*nigger*", "neekeri", "ngr", "nigga*", "*NIGGER*", "NEEKERI", "NGR", "NIGGA*", "nekru*"},
+			KeywordFilter: []string{"*nigger*", "neekeri", "ngr", "*nigga*", "*NIGGER*", "NEEKERI", "NGR", "NIGGA*", "nekru*", "neeker*"},
 			//RegexPatterns: []string{},
 		},
 
