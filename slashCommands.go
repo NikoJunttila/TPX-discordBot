@@ -2,9 +2,11 @@ package main
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/bwmarrin/discordgo"
 	"github.com/nikojunttila/discord/riot"
+	"github.com/nikojunttila/discord/utils"
 )
 
 var (
@@ -49,18 +51,18 @@ var (
 					Required:    true,
 				},
 				{
-					Type:        discordgo.ApplicationCommandOptionString,
-					Name:        "europeoramericas",
-					Description: "europe or americas",
-					Required:    true,
-				},
-				{
 					Type:        discordgo.ApplicationCommandOptionInteger,
 					Name:        "amount",
 					Description: "number of games",
 					MinValue:    &integerOptionMinValue,
 					MaxValue:    80,
 					Required:    true,
+				},
+				{
+					Type:        discordgo.ApplicationCommandOptionString,
+					Name:        "region",
+					Description: "leave empty for eu",
+					Required:    false,
 				},
 			},
 		},
@@ -87,9 +89,9 @@ var (
 				},
 				{
 					Type:        discordgo.ApplicationCommandOptionString,
-					Name:        "europeoramericas",
-					Description: "europe or americas",
-					Required:    true,
+					Name:        "region",
+					Description: "leave empty for eu",
+					Required:    false,
 				},
 			},
 		},
@@ -113,7 +115,7 @@ var (
 			if i.Member.User.ID != "" {
 				fmt.Println(i.Member.User.ID)
 				if i.Member.User.ID == "249254722668724225" {
-					response = "Neekeri"
+					response = utils.Res
 					sendTag(s, response, i.ChannelID, name)
 					return
 				}
@@ -167,11 +169,23 @@ var (
 			if opt, ok := optionMap["hashtag"]; ok {
 				inf.hashtag = opt.StringValue()
 			}
-			if opt, ok := optionMap["europeoramericas"]; ok {
-				inf.region = opt.StringValue()
-			}
 			if opt, ok := optionMap["amount"]; ok {
 				inf.amount = opt.IntValue()
+			}
+			if opt, ok := optionMap["region"]; ok {
+				value := strings.ToLower(opt.StringValue())
+				switch value {
+				case "eune", "euw", "ru", "tr":
+					inf.region = "EUROPE"
+				case "na", "br":
+					inf.region = "AMERICAS"
+				case "kr", "jp":
+					inf.region = "ASIA"
+				default:
+					inf.region = "EUROPE"
+				}
+			} else {
+				inf.region = "EUROPE"
 			}
 			fmt.Println(inf)
 			var response string
@@ -255,8 +269,21 @@ var (
 			if opt, ok := optionMap["hashtag"]; ok {
 				inf.hashtag = opt.StringValue()
 			}
-			if opt, ok := optionMap["europeoramericas"]; ok {
-				inf.region = opt.StringValue()
+
+			if opt, ok := optionMap["region"]; ok {
+				value := strings.ToLower(opt.StringValue())
+				switch value {
+				case "eune", "euw", "ru", "tr":
+					inf.region = "EUROPE"
+				case "na", "br":
+					inf.region = "AMERICAS"
+				case "kr", "jp":
+					inf.region = "ASIA"
+				default:
+					inf.region = "EUROPE"
+				}
+			} else {
+				inf.region = "EUROPE"
 			}
 			fmt.Println(inf)
 			err := AddToDB(inf.name, inf.hashtag, inf.region)

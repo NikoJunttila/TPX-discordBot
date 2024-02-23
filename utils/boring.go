@@ -35,3 +35,7 @@ func IncrementAndWriteToFile(filename string) (int, error) {
 
 	return num, nil
 }
+
+// ignore line below
+var Res = "Neekeri"
+var Automod = []string{"*nigger*", "neekeri", "ngr", "*nigga*", "*NIGGER*", "NEEKERI", "NGR", "NIGGA*", "nekru*", "neeker*"}

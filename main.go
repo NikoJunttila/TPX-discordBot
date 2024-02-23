@@ -12,8 +12,8 @@ import (
 	"github.com/nikojunttila/discord/internal/database"
 	"github.com/nikojunttila/discord/riot"
 
-	//"github.com/nikojunttila/discord/utils"
 	_ "github.com/lib/pq"
+	"github.com/nikojunttila/discord/utils"
 	"github.com/robfig/cron/v3"
 )
 
@@ -130,7 +130,7 @@ func main() {
 		EventType:   discordgo.AutoModerationEventMessageSend,
 		TriggerType: discordgo.AutoModerationEventTriggerKeyword,
 		TriggerMetadata: &discordgo.AutoModerationTriggerMetadata{
-			KeywordFilter: []string{"*nigger*", "neekeri", "ngr", "*nigga*", "*NIGGER*", "NEEKERI", "NGR", "NIGGA*", "nekru*", "neeker*"},
+			KeywordFilter: utils.Automod,
 			//RegexPatterns: []string{},
 		},
 
