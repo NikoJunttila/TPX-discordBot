@@ -79,7 +79,7 @@ type ParticipantDetails struct {
 	KysPing            int               `json:"pushPings"`
 	MissingPing        int               `json:"enemyMissingPings"`
 	DangerPing         int               `json:"dangerPings"`
-	DmgDealt           int               `json:"totalDamageDealt"`
+	DmgDealt           int               `json:"totalDamageDealtToChampions"`
 	TimePlayed         int               `json:"timePlayed"`
 	Challenges         ChallengesDetails `json:"challenges"`
 }

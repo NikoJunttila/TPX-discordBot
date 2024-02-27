@@ -7,10 +7,6 @@ import (
 	"github.com/bwmarrin/discordgo"
 )
 
-func ready(s *discordgo.Session, event *discordgo.Ready) {
-	s.UpdateGameStatus(0, "Stalking tpx members")
-}
-
 func sendGameStatus(s *discordgo.Session, m string, ch string) {
 	if len(m) < 2 {
 		return

@@ -9,8 +9,9 @@ import (
 
 func CheckLastMatch(lastGameID string, puuID string, country string, apiKey string) (string, bool) {
 	newGameID, err := GetMatchHistory(puuID, 1, country, apiKey)
-	if err != nil {
+	if err != nil || len(newGameID) == 0 {
 		fmt.Println(err, "err getting match history")
+		return "", false
 	}
 	if lastGameID != newGameID[0] {
 		fmt.Print("\n******************************\n*\n* new match \n*\n*******************************\n")
