@@ -189,7 +189,7 @@ var (
 			}
 			fmt.Println(inf)
 			var response string
-			puuID, err := riot.GetPuuID(inf.name, inf.hashtag, globalAPi)
+			puuID, err := riot.GetPuuID(inf.name, inf.hashtag, apiCfg.apiKey)
 			if err != nil {
 				fmt.Println("slash puuid get ", err)
 				response = fmt.Sprintln(err)
@@ -202,7 +202,7 @@ var (
 				})
 				return
 			}
-			history, err := riot.GetMatchHistory(puuID, int(inf.amount), inf.region, globalAPi)
+			history, err := riot.GetMatchHistory(puuID, int(inf.amount), inf.region, apiCfg.apiKey)
 			if err != nil {
 				fmt.Println("slash history get ", err)
 				response = fmt.Sprintln(err)
@@ -215,7 +215,7 @@ var (
 				})
 				return
 			}
-			response, err = riot.PrintHistory(history, globalAPi, puuID, inf.region, inf.name)
+			response, err = riot.PrintHistory(history, apiCfg.apiKey, puuID, inf.region, inf.name)
 			if err != nil {
 				fmt.Println("slash history print", err)
 				response = fmt.Sprintln("slash print history err:", err)

@@ -4,8 +4,6 @@ import (
 	"database/sql"
 	"fmt"
 	"log"
-	"os"
-	"os/signal"
 
 	"github.com/bwmarrin/discordgo"
 	"github.com/joho/godotenv"
@@ -18,21 +16,18 @@ import (
 )
 
 type apiConfig struct {
-	DB *database.Queries
+	DB     *database.Queries
+	apiKey string
 }
 
 var (
-	s         *discordgo.Session
-	globalAPi string
-	apiCfg    apiConfig
+	s      *discordgo.Session
+	apiCfg apiConfig
 )
 
 func init() {
 	godotenv.Load()
-	BotToken := os.Getenv("DISCORD")
-	if BotToken == "" {
-		fmt.Println("port not found in env")
-	}
+	BotToken := utils.GetEnvVariable("DISCORD")
 	var err error
 	s, err = discordgo.New("Bot " + BotToken)
 	if err != nil {
@@ -46,59 +41,30 @@ func init() {
 }
 
 func main() {
-	godotenv.Load()
-	dbURL := os.Getenv("DB_URL")
-	if dbURL == "" {
-		log.Fatal("DB_URL is not found")
-	}
+	dbURL := utils.GetEnvVariable("DB_URL")
 	connection, err := sql.Open("postgres", dbURL)
 	if err != nil {
 		log.Fatal("cant connect to database", err)
 	}
+	//guildID := utils.GetEnvVariable("GUILD_ID")
+	guildID := utils.GetEnvVariable("TPX_ID")
+	//channelID := utils.GetEnvVariable("channel_ID")
+	channelID := utils.GetEnvVariable("general2")
+	apiKey := utils.GetEnvVariable("riot_API")
 	apiCfg = apiConfig{
-		DB: database.New(connection),
+		DB:     database.New(connection),
+		apiKey: apiKey,
 	}
-	BotToken := os.Getenv("DISCORD")
-	if BotToken == "" {
-		fmt.Println("port not found in env")
-	}
-	//guildID := os.Getenv("GUILD_ID")
-	guildID := os.Getenv("TPX_ID")
-	if guildID == "" {
-		fmt.Println("port not found in env")
-	}
-	//channelID := os.Getenv("channel_ID")
-	channelID := os.Getenv("general2")
-	if channelID == "" {
-		fmt.Println("port not found in env")
-	}
-	apiKey := os.Getenv("riot_API")
-	if apiKey == "" {
-		fmt.Println("port not found in env")
-	}
-	globalAPi = apiKey
-	s.Identify.Intents |= discordgo.IntentAutoModerationExecution
-	s.Identify.Intents |= discordgo.IntentMessageContent
-	s.Identify.Intents |= discordgo.IntentsGuildMessages
-	s.AddHandler(func(s *discordgo.Session, r *discordgo.Ready) {
-		log.Printf("Logged in as: %v#%v", s.State.User.Username, s.State.User.Discriminator)
-	})
+
+	initializeDiscordHandlers()
 	err = s.Open()
 	if err != nil {
 		fmt.Println("error opening connection,", err)
 		return
 	}
-	registeredCommands := make([]*discordgo.ApplicationCommand, len(commands))
-	for i, v := range commands {
-		cmd, err := s.ApplicationCommandCreate(s.State.User.ID, guildID, v)
-		if err != nil {
-			log.Panicf("Cannot create '%v' command: %v", v.Name, err)
-		}
-		registeredCommands[i] = cmd
-	}
-
 	defer s.Close()
 
+	registerDiscordCommands(guildID)
 	c := cron.New()
 	usersToCheck, err := getFollows()
 	if err != nil {
@@ -107,10 +73,10 @@ func main() {
 
 	c.AddFunc("@every 1m", func() {
 		for i, user := range usersToCheck {
-			newMatch, check := riot.CheckLastMatch(user.lastMatch, user.puuID, user.region, globalAPi)
+			newMatch, check := riot.CheckLastMatch(user.lastMatch, user.puuID, user.region, apiCfg.apiKey)
 			if check {
 				usersToCheck[i].lastMatch = newMatch
-				result, err := riot.GetMatch(newMatch, user.puuID, user.region, globalAPi)
+				result, err := riot.GetMatch(newMatch, user.puuID, user.region, apiCfg.apiKey)
 				if err != nil {
 					fmt.Println("Loop check: ", err)
 					return
@@ -124,6 +90,43 @@ func main() {
 		fmt.Print("\n******************************\n*\n* new match \n*\n*******************************\n")
 	})
 	c.Start()
+
+	ruleID := setupAutoModerationRule(guildID, channelID)
+	defer s.AutoModerationRuleDelete(guildID, ruleID)
+
+	// Wait here until CTRL-C or other term signal is received.
+	utils.WaitForInterruptSignal()
+
+	removeCommands := true
+	if removeCommands {
+		removeRegisteredCommands(guildID)
+	}
+
+	log.Println("Gracefully shutting down.")
+}
+func registerDiscordCommands(guildID string) {
+	registeredCommands := make([]*discordgo.ApplicationCommand, len(commands))
+	for i, v := range commands {
+		cmd, err := s.ApplicationCommandCreate(s.State.User.ID, guildID, v)
+		if err != nil {
+			log.Panicf("Cannot create '%v' command: %v", v.Name, err)
+		}
+		registeredCommands[i] = cmd
+	}
+}
+
+func initializeDiscordHandlers() {
+	s.Identify.Intents = discordgo.IntentsGuilds | discordgo.IntentsGuildMessages | discordgo.IntentsGuildVoiceStates | discordgo.IntentMessageContent | discordgo.IntentAutoModerationExecution
+	s.AddHandler(ready)
+	s.AddHandler(apiCfg.badWordCounter)
+	s.AddHandler(messageCreate)
+
+	s.AddHandler(func(s *discordgo.Session, r *discordgo.Ready) {
+		log.Printf("Logged in as: %v#%v", s.State.User.Username, s.State.User.Discriminator)
+	})
+}
+
+func setupAutoModerationRule(guildID, channelID string) string {
 	enabled := true
 	rule, err := s.AutoModerationRuleCreate(guildID, &discordgo.AutoModerationRule{
 		Name:        "NNZ",
@@ -131,9 +134,7 @@ func main() {
 		TriggerType: discordgo.AutoModerationEventTriggerKeyword,
 		TriggerMetadata: &discordgo.AutoModerationTriggerMetadata{
 			KeywordFilter: utils.Automod,
-			//RegexPatterns: []string{},
 		},
-
 		Enabled: &enabled,
 		Actions: []discordgo.AutoModerationAction{
 			{Type: discordgo.AutoModerationRuleActionSendAlertMessage, Metadata: &discordgo.AutoModerationActionMetadata{
@@ -144,31 +145,20 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	defer s.AutoModerationRuleDelete(guildID, rule.ID)
+	return rule.ID
+}
 
-	s.AddHandler(apiCfg.badWordCounter)
-	s.AddHandler(messageCreate)
-	// Wait here until CTRL-C or other term signal is received.
-	stop := make(chan os.Signal, 1)
-	signal.Notify(stop, os.Interrupt)
-	log.Println("Press Ctrl+C to exit")
-	<-stop
+func removeRegisteredCommands(guildID string) {
+	log.Println("Removing commands...")
+	registeredCommands2, err := s.ApplicationCommands(s.State.User.ID, guildID)
+	if err != nil {
+		log.Fatalf("Could not fetch registered commands: %v", err)
+	}
 
-	removeCommands := true
-	if removeCommands {
-		log.Println("Removing commands...")
-
-		registeredCommands2, err := s.ApplicationCommands(s.State.User.ID, guildID)
+	for _, v := range registeredCommands2 {
+		err := s.ApplicationCommandDelete(s.State.User.ID, guildID, v.ID)
 		if err != nil {
-			log.Fatalf("Could not fetch registered commands: %v", err)
-		}
-
-		for _, v := range registeredCommands2 {
-			err := s.ApplicationCommandDelete(s.State.User.ID, guildID, v.ID)
-			if err != nil {
-				log.Panicf("Cannot delete '%v' command: %v", v.Name, err)
-			}
+			log.Panicf("Cannot delete '%v' command: %v", v.Name, err)
 		}
 	}
-	log.Println("Gracefully shutting down.")
 }

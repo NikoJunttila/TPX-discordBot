@@ -3,8 +3,23 @@ package utils
 import (
 	"fmt"
 	"os"
+	"os/signal"
 	"strconv"
 )
+
+func WaitForInterruptSignal() {
+	stop := make(chan os.Signal, 1)
+	signal.Notify(stop, os.Interrupt)
+	fmt.Println("Press Ctrl+C to exit")
+	<-stop
+}
+func GetEnvVariable(key string) string {
+	value := os.Getenv(key)
+	if value == "" {
+		panic(fmt.Sprintln("no env value: ", key))
+	}
+	return value
+}
 
 func IncrementAndWriteToFile(filename string) (int, error) {
 	// Read the content of the file
@@ -36,6 +51,7 @@ func IncrementAndWriteToFile(filename string) (int, error) {
 	return num, nil
 }
 
-// ignore line below
-var Res = "Neekeri"
+var Res = "Noob"
+
+// ignore line below it is for automoderator
 var Automod = []string{"*nigger*", "neekeri", "ngr", "*nigga*", "*NIGGER*", "NEEKERI", "NGR", "NIGGA*", "nekru*", "neeker*"}

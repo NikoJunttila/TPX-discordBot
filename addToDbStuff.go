@@ -19,7 +19,7 @@ type checkMatch struct {
 }
 
 func AddToDB(name string, hashtag string, region string) error {
-	puuID, err := riot.GetPuuID(name, hashtag, globalAPi)
+	puuID, err := riot.GetPuuID(name, hashtag, apiCfg.apiKey)
 	if err != nil {
 		return err
 	}
@@ -38,30 +38,6 @@ func AddToDB(name string, hashtag string, region string) error {
 	}
 	return nil
 }
-
-/*
-	 func getFollows() ([]checkMatch, error) {
-		dbCtx := context.Background()
-		var returnUsers []checkMatch
-		users, err := apiCfg.DB.GetFollowed(dbCtx)
-		if err != nil {
-			fmt.Println("Error getting follows ", err)
-			return returnUsers, err
-		}
-		for i, user := range users {
-			returnUsers[i].name = user.AccountName
-			returnUsers[i].puuID = user.Puuid
-			returnUsers[i].region = user.Region
-			lastMatches, err := riot.GetMatchHistory(user.Puuid, 1, user.Region, globalAPi)
-			if err != nil {
-				fmt.Println("Error GetMatchHistory ", err)
-				return returnUsers, err
-			}
-			returnUsers[i].lastMatch = lastMatches[0]
-		}
-		return returnUsers, nil
-	}
-*/
 func getFollows() ([]checkMatch, error) {
 	dbCtx := context.Background()
 	var returnUsers []checkMatch
@@ -77,7 +53,7 @@ func getFollows() ([]checkMatch, error) {
 			region:    user.Region,
 			lastMatch: "", // Initialize lastMatch to avoid nil panic
 		}
-		lastMatches, err := riot.GetMatchHistory(user.Puuid, 1, user.Region, globalAPi)
+		lastMatches, err := riot.GetMatchHistory(user.Puuid, 1, user.Region, apiCfg.apiKey)
 		if err != nil {
 			fmt.Println("Error GetMatchHistory ", err)
 			return returnUsers, err
