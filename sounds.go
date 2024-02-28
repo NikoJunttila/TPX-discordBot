@@ -99,6 +99,7 @@ func voiceStateUpdate(s *discordgo.Session, m *discordgo.VoiceStateUpdate) {
 	guild, _ := s.State.Guild("615649589621686272")
 	for _, vs := range guild.VoiceStates {
 		user, _ := s.User(vs.UserID)
+		fmt.Print(user.Username, ", ")
 		if previousVoiceState, ok := previousVoiceStates[vs.UserID]; ok {
 			if previousVoiceState.ChannelID != vs.ChannelID {
 				fmt.Printf("User %s (%s#%s) has moved from channel %s to %s\n", vs.UserID, user.Username, user.Discriminator, previousVoiceState.ChannelID, vs.ChannelID)
@@ -107,7 +108,6 @@ func voiceStateUpdate(s *discordgo.Session, m *discordgo.VoiceStateUpdate) {
 			fmt.Printf("User %s (%s#%s) has joined channel %s\n", vs.UserID, user.Username, user.Discriminator, vs.ChannelID)
 			for _, u := range users {
 				if vs.UserID == u.id {
-					fmt.Println("user joined who wanted to")
 					//hard coded guild id swap later
 					err := playSound(s, "615649589621686272", vs.ChannelID, u.sound)
 					if err != nil {
@@ -118,6 +118,6 @@ func voiceStateUpdate(s *discordgo.Session, m *discordgo.VoiceStateUpdate) {
 		}
 		previousVoiceStates[vs.UserID] = vs
 	}
-
-	time.Sleep(2 * time.Second)
+	fmt.Println("")
+	time.Sleep(5 * time.Second)
 }
