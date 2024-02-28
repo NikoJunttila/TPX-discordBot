@@ -4,6 +4,7 @@ import (
 	"encoding/binary"
 	"fmt"
 	"io"
+	"log"
 	"os"
 	"sync"
 	"time"
@@ -57,6 +58,7 @@ func loadSound(sound string) error {
 }
 
 func playSound(s *discordgo.Session, guildID, channelID, sound string) (err error) {
+	log.Println("Playing sound: ", sound)
 	err = loadSound(sound)
 	if err != nil {
 		fmt.Println("Error loading sound: ", err)
@@ -74,6 +76,7 @@ func playSound(s *discordgo.Session, guildID, channelID, sound string) (err erro
 	vc.Speaking(false)
 	time.Sleep(250 * time.Millisecond)
 	vc.Disconnect()
+	buffer = make([][]byte, 0)
 	return nil
 }
 
@@ -105,7 +108,7 @@ func voiceStateUpdate(s *discordgo.Session, m *discordgo.VoiceStateUpdate) {
 				fmt.Printf("User %s (%s#%s) has moved from channel %s to %s\n", vs.UserID, user.Username, user.Discriminator, previousVoiceState.ChannelID, vs.ChannelID)
 			}
 		} else {
-			fmt.Printf("User %s (%s#%s) has joined channel %s\n", vs.UserID, user.Username, user.Discriminator, vs.ChannelID)
+			log.Printf("User %s (%s#%s) has joined channel %s\n", vs.UserID, user.Username, user.Discriminator, vs.ChannelID)
 			for _, u := range users {
 				if vs.UserID == u.id {
 					//hard coded guild id swap later
@@ -119,5 +122,5 @@ func voiceStateUpdate(s *discordgo.Session, m *discordgo.VoiceStateUpdate) {
 		previousVoiceStates[vs.UserID] = vs
 	}
 	fmt.Println("")
-	time.Sleep(5 * time.Second)
+	time.Sleep(3 * time.Second)
 }
