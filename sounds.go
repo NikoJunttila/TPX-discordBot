@@ -80,26 +80,64 @@ func playSound(s *discordgo.Session, guildID, channelID, sound string) (err erro
 	return nil
 }
 
-var (
-	previousVoiceStates = make(map[string]*discordgo.VoiceState)
-	mutex               = &sync.Mutex{}
-)
-
 type usersSounds struct {
 	id    string
 	sound string
 }
 
+var (
+	//previousVoiceState = make(map[string]*discordgo.VoiceState)
+	mutex            = &sync.Mutex{}
+	tpxVoiceStates   = make(map[string]*discordgo.VoiceState)
+	derpsVoiceStates = make(map[string]*discordgo.VoiceState)
+)
+
 func voiceStateUpdate(s *discordgo.Session, m *discordgo.VoiceStateUpdate) {
 	var users = []usersSounds{
-		{id: "685511498641965089", sound: "bzi"},
-		{id: "249254722668724225", sound: "uwu"},
+		{id: "685511498641965089", sound: "bzi2"},
+		{id: "249254722668724225", sound: "allu"},
 		{id: "223070624438943745", sound: "fart"},
+		{id: "660136166515015711", sound: "chipi"},
+		{id: "383917745059921930", sound: "vili"},
+	}
+	var usersOut = []usersSounds{
+		{id: "685511498641965089", sound: "bzio"},
 	}
 	mutex.Lock()
 	defer mutex.Unlock()
-	//hard coded guild id swap later
-	guild, _ := s.State.Guild("615649589621686272")
+	var previousVoiceStates map[string]*discordgo.VoiceState
+	if m.GuildID == "615649589621686272" {
+		previousVoiceStates = derpsVoiceStates
+	} else {
+		previousVoiceStates = tpxVoiceStates
+	}
+	guild, _ := s.State.Guild(m.GuildID)
+
+	for userID := range previousVoiceStates {
+		found := false
+		var vsID string
+		for _, vs := range guild.VoiceStates {
+			if vs.UserID == userID {
+				found = true
+				vsID = vs.ChannelID
+				break
+			}
+		}
+		if !found {
+			delete(previousVoiceStates, userID)
+			user, _ := s.User(userID)
+			fmt.Println(user.Username, " has left the voice channel")
+			for _, u := range usersOut {
+				if userID == u.id {
+					err := playSound(s, m.GuildID, vsID, u.sound)
+					if err != nil {
+						fmt.Println("Error playing sound:", err)
+					}
+				}
+			}
+		}
+	}
+
 	for _, vs := range guild.VoiceStates {
 		user, _ := s.User(vs.UserID)
 		fmt.Print(user.Username, ", ")
@@ -111,8 +149,7 @@ func voiceStateUpdate(s *discordgo.Session, m *discordgo.VoiceStateUpdate) {
 			log.Printf("User %s (%s#%s) has joined channel %s\n", vs.UserID, user.Username, user.Discriminator, vs.ChannelID)
 			for _, u := range users {
 				if vs.UserID == u.id {
-					//hard coded guild id swap later
-					err := playSound(s, "615649589621686272", vs.ChannelID, u.sound)
+					err := playSound(s, m.GuildID, vs.ChannelID, u.sound)
 					if err != nil {
 						fmt.Println("Error playing sound:", err)
 					}
@@ -122,5 +159,4 @@ func voiceStateUpdate(s *discordgo.Session, m *discordgo.VoiceStateUpdate) {
 		previousVoiceStates[vs.UserID] = vs
 	}
 	fmt.Println("")
-	time.Sleep(3 * time.Second)
 }
