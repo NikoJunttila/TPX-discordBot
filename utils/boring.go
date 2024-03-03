@@ -1,7 +1,10 @@
 package utils
 
 import (
+	"encoding/json"
 	"fmt"
+	"io"
+	"net/http"
 	"os"
 	"os/signal"
 	"strconv"
@@ -19,6 +22,29 @@ func GetEnvVariable(key string) string {
 		panic(fmt.Sprintln("no env value: ", key))
 	}
 	return value
+}
+
+func InsultRes() string {
+	type insult struct {
+		Insult string `json:"insult"`
+	}
+
+	var ins insult
+	url := "https://evilinsult.com/generate_insult.php?lang=en&type=json"
+
+	req, _ := http.NewRequest("GET", url, nil)
+
+	req.Header.Add("accept", "application/json")
+
+	res, err := http.DefaultClient.Do(req)
+	if err != nil {
+		fmt.Println(err)
+		return ""
+	}
+	defer res.Body.Close()
+	body, _ := io.ReadAll(res.Body)
+	_ = json.Unmarshal(body, &ins)
+	return ins.Insult
 }
 
 func IncrementAndWriteToFile(filename string) (int, error) {
@@ -51,7 +77,5 @@ func IncrementAndWriteToFile(filename string) (int, error) {
 	return num, nil
 }
 
-var Res = "Noob"
-
 // ignore line below it is for automoderator
-var Automod = []string{"*nigger*", "neekeri", "ngr", "*nigga*", "*NIGGER*", "NEEKERI", "NGR", "NIGGA*", "nekru*", "neeker*"}
+var Automod = []string{"*nigger*", "*neekeri*", "ngr", "*nigga*", "*nekru*"}

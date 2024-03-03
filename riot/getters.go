@@ -192,7 +192,6 @@ func getMatchStats(matchId string, puuID string, country string, apiKey string) 
 }
 func PrintHistory(matchHistory []string, apiKey string, puuID string, country string, playerName string) (string, error) {
 	var c CountingStats
-	var err error
 	for i, g := range matchHistory {
 		inf, err := getMatchStats(g, puuID, country, apiKey)
 		if err != nil {
@@ -213,10 +212,6 @@ func PrintHistory(matchHistory []string, apiKey string, puuID string, country st
 		c.soloKills += inf.soloKills
 		c.laneMinions += inf.laneMinions
 		c.dmgPermin += inf.dmgPermin
-	}
-	if err != nil {
-		fmt.Println("history loop: ", err)
-		return "", err
 	}
 	var result string
 	result = fmt.Sprintf("Avg stats for %s in last %d games \n", playerName, len(matchHistory))

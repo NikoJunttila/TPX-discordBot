@@ -65,35 +65,10 @@ func main() {
 	//new guilds need to be registered here for slash commands
 	registerDiscordCommands("")
 	setupCron(channelID)
-	/*
-	   	usersToCheck, err := getFollows()
-	   	if err != nil {
-	   		log.Panic(err)
-	   	}
 
-	    	c := cron.New()
-	   	c.AddFunc("@every 1m", func() {
-	   		for i, user := range usersToCheck {
-	   			newMatch, check := riot.CheckLastMatch(user.lastMatch, user.puuID, user.region, apiCfg.apiKey)
-	   			if check {
-	   				usersToCheck[i].lastMatch = newMatch
-	   				result, err := riot.GetMatch(newMatch, user.puuID, user.region, apiCfg.apiKey)
-	   				if err != nil {
-	   					fmt.Println("Loop check: ", err)
-	   					return
-	   				}
-	   				sendGameStatus(s, result, channelID)
-	   			}
-	   		}
-	   	})
-	   	c.AddFunc("@every 1d", func() {
-	   		fmt.Print("\n******************************\n*\n* new match \n*\n*******************************\n")
-	   		fmt.Print("\n******************************\n*\n* new match \n*\n*******************************\n")
-	   	})
-	   	c.Start() */
-
-	ruleID := setupAutoModerationRule(guildID, channelID)
-	defer s.AutoModerationRuleDelete(guildID, ruleID)
+	//auto mod rules
+	/* 	ruleID := setupAutoModerationRule(guildID, channelID)
+	   	defer s.AutoModerationRuleDelete(guildID, ruleID) */
 
 	// Wait here until CTRL-C or other term signal is received.
 	utils.WaitForInterruptSignal()

@@ -4,7 +4,6 @@ import (
 	"log"
 
 	"github.com/bwmarrin/discordgo"
-	"github.com/nikojunttila/discord/utils"
 )
 
 func registerDiscordCommands(guildID string) {
@@ -32,7 +31,8 @@ func initializeDiscordHandlers() {
 	})
 }
 
-func setupAutoModerationRule(guildID, channelID string) string {
+//auto mod rule
+/* func setupAutoModerationRule(guildID, channelID string) string {
 	enabled := true
 	rule, err := s.AutoModerationRuleCreate(guildID, &discordgo.AutoModerationRule{
 		Name:        "NNZ",
@@ -52,7 +52,7 @@ func setupAutoModerationRule(guildID, channelID string) string {
 		panic(err)
 	}
 	return rule.ID
-}
+} */
 
 func removeRegisteredCommands(guildID string) {
 	log.Println("Removing commands...")

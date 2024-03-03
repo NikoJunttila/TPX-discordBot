@@ -113,9 +113,8 @@ var (
 			mention := "<@" + name + "> "
 			response := fmt.Sprintf("Hello %s!", mention)
 			if i.Member.User.ID != "" {
-				fmt.Println(i.Member.User.ID)
 				if i.Member.User.ID == "249254722668724225" {
-					response = utils.Res
+					response = utils.InsultRes()
 					sendTag(s, response, i.ChannelID, name)
 					return
 				}

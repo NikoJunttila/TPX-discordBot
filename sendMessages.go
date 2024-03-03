@@ -34,7 +34,7 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 		return
 	}
 	if m.Author.ID == "685511498641965089" {
-		randomNumber := rand.Intn(101)
+		randomNumber := rand.Intn(301)
 		if randomNumber == 5 {
 			responses := []string{"top gap", "neekeri", "java enjoyer", "If you were any more inbred, you'd be a sandwich", "Your map awareness is so bad, even Twisted Fate wouldn't ult to save you.", "Not even Olaf ult could prevent you from being disabled",
 				"I'd call you cancer but at least cancer gets kills", "If i wanted to kill myself i'd jump up to your ego and jump down to your IQ.", "Even the mars curiosity rover has faster reaction time than you", "Even Christopher Columbus had better map awareness than you"}

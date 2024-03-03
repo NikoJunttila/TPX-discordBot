@@ -94,11 +94,12 @@ var (
 
 func voiceStateUpdate(s *discordgo.Session, m *discordgo.VoiceStateUpdate) {
 	var users = []usersSounds{
-		{id: "685511498641965089", sound: "bzi2"},
+		{id: "685511498641965089", sound: "bzi"},
 		{id: "249254722668724225", sound: "allu"},
 		{id: "223070624438943745", sound: "fart"},
 		{id: "660136166515015711", sound: "chipi"},
 		{id: "383917745059921930", sound: "vili"},
+		{id: "1004146544322302032", sound: "downbad"},
 	}
 	var usersOut = []usersSounds{
 		{id: "685511498641965089", sound: "bzio"},
