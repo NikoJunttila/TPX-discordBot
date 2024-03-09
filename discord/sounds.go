@@ -1,4 +1,4 @@
-package main
+package discord
 
 import (
 	"encoding/binary"
@@ -99,7 +99,7 @@ func voiceStateUpdate(s *discordgo.Session, m *discordgo.VoiceStateUpdate) {
 		{id: "223070624438943745", sound: "fart"},
 		{id: "660136166515015711", sound: "chipi"},
 		{id: "383917745059921930", sound: "vili"},
-		{id: "1004146544322302032", sound: "downbad"},
+		{id: "1004146544322302032", sound: "vitus"},
 	}
 	var usersOut = []usersSounds{
 		{id: "685511498641965089", sound: "bzio"},
