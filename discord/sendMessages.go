@@ -5,6 +5,7 @@ import (
 	"math/rand"
 
 	"github.com/bwmarrin/discordgo"
+	"github.com/nikojunttila/discord/utils"
 )
 
 func sendGameStatus(s *discordgo.Session, m string, ch string) {
@@ -26,7 +27,32 @@ func sendTag(s *discordgo.Session, m string, ch string, userID string) {
 		fmt.Println("err mentioning bzi", err)
 	}
 }
-
+func sendCat(s *discordgo.Session, userID string) {
+	// We create the private channel with the user who sent the message.
+	channel, err := s.UserChannelCreate(userID)
+	if err != nil {
+		fmt.Println("error creating channel:", err)
+		s.ChannelMessageSend(
+			"400298523263893505",
+			"Something went wrong while sending the DM!",
+		)
+		return
+	}
+	catImg, err := utils.CatPic()
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	_, err = s.ChannelMessageSend(channel.ID, catImg)
+	if err != nil {
+		fmt.Println("error sending DM message:", err)
+		s.ChannelMessageSend(
+			"400298523263893505",
+			"Failed to send you a DM. "+
+				"Did you disable DM in your privacy settings?",
+		)
+	}
+}
 func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 	// Ignore all messages created by the bot itself
 	// This isn't required in this specific example but it's a good practice.

@@ -23,7 +23,32 @@ func GetEnvVariable(key string) string {
 	}
 	return value
 }
+func CatPic() (string, error) {
+	type catType struct {
+		Url string `json:"url"`
+	}
 
+	var cat []catType
+	url := "https://api.thecatapi.com/v1/images/search"
+
+	req, _ := http.NewRequest("GET", url, nil)
+	catAPI := GetEnvVariable("catAPI")
+	req.Header.Set("x-api-key", catAPI)
+	req.Header.Add("accept", "application/json")
+
+	res, err := http.DefaultClient.Do(req)
+	if err != nil {
+		fmt.Println(err)
+		return "", err
+	}
+	defer res.Body.Close()
+	body, _ := io.ReadAll(res.Body)
+	err = json.Unmarshal(body, &cat)
+	if err != nil {
+		return "", err
+	}
+	return cat[0].Url, nil
+}
 func InsultRes() string {
 	type insult struct {
 		Insult string `json:"insult"`
@@ -31,11 +56,8 @@ func InsultRes() string {
 
 	var ins insult
 	url := "https://evilinsult.com/generate_insult.php?lang=en&type=json"
-
 	req, _ := http.NewRequest("GET", url, nil)
-
 	req.Header.Add("accept", "application/json")
-
 	res, err := http.DefaultClient.Do(req)
 	if err != nil {
 		fmt.Println(err)

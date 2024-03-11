@@ -30,9 +30,14 @@ func setupCron(channelID string) {
 			}
 		}
 	})
-	c.AddFunc("@every 1d", func() {
-		fmt.Print("\n******************************\n*\n* new match \n*\n*******************************\n")
-		fmt.Print("\n******************************\n*\n* new match \n*\n*******************************\n")
+	/* 	c.AddFunc("@every 6h", func() {
+		sendCat(s, "660136166515015711")
+	}) */
+	c.AddFunc("0 20 * * ?", func() {
+		sendCat(s, "660136166515015711")
 	})
+	/* 	c.AddFunc("@every 5m", func() {
+		sendCat(s, "249254722668724225")
+	}) */
 	c.Start()
 }
