@@ -22,7 +22,7 @@ func InitStats(name string, tagLine string, country string, apiKey string) (stri
 	return history[0], puuID
 }
 
-func GetMatch(matchId string, puuID string, country string, apiKey string) (string, error) {
+func GetMatch(matchId string, puuID string, country string, apiKey string) (string, bool, error) {
 	var matchInfo MatchData
 	endPoint := fmt.Sprintf("https://%s.api.riotgames.com/lol/match/v5/matches/%s", country, matchId)
 	matchReq2, _ := http.NewRequest("GET", endPoint, nil)
@@ -31,23 +31,23 @@ func GetMatch(matchId string, puuID string, country string, apiKey string) (stri
 	matchRes2, err := client.Do(matchReq2)
 	if err != nil {
 		fmt.Println("Error making HTTP request:", err)
-		return "", err
+		return "", false, err
 	}
 	defer matchRes2.Body.Close()
 	if matchRes2.StatusCode != http.StatusOK {
 		fmt.Printf("Error get match: %s\n", matchRes2.Status)
-		return "", err
+		return "", false, err
 	}
 	body2, err := io.ReadAll(matchRes2.Body)
 	if err != nil {
 		fmt.Println("Error copying response body:", err)
-		return "", err
+		return "", false, err
 	}
 	// Unmarshal the JSON data into the struct
 	err = json.Unmarshal(body2, &matchInfo)
 	if err != nil {
 		fmt.Println("Error decoding JSON:", err)
-		return "", err
+		return "", false, err
 	}
 	var result string
 	que := matchInfo.Info.QueueID
@@ -85,7 +85,11 @@ func GetMatch(matchId string, puuID string, country string, apiKey string) (stri
 			fmt.Println(result)
 		}
 	}
-	return result, nil
+	ranked := false
+	if que == 420 {
+		ranked = true
+	}
+	return result, ranked, nil
 }
 
 func GetPuuID(name string, tagLine string, apiKey string) (string, error) {

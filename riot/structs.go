@@ -11,23 +11,17 @@ type SummonerInfo struct {
 }
 type LeagueEntry struct {
 	LeagueID     string `json:"leagueId"`
-	SummonerID   string `json:"summonerId"`
-	SummonerName string `json:"summonerName"`
 	QueueType    string `json:"queueType"`
 	Tier         string `json:"tier"`
 	Rank         string `json:"rank"`
+	SummonerID   string `json:"summonerId"`
+	SummonerName string `json:"summonerName"`
 	LeaguePoints int    `json:"leaguePoints"`
 	Wins         int    `json:"wins"`
 	Losses       int    `json:"losses"`
 	Inactive     bool   `json:"inactive"`
 	FreshBlood   bool   `json:"freshBlood"`
 	HotStreak    bool   `json:"hotStreak"`
-	MiniSeries   struct {
-		Target   int    `json:"target"`
-		Wins     int    `json:"wins"`
-		Losses   int    `json:"losses"`
-		Progress string `json:"progress"`
-	} `json:"miniSeries"`
 }
 
 type MatchData struct {

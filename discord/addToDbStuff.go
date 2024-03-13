@@ -16,6 +16,7 @@ type checkMatch struct {
 	puuID     string
 	region    string
 	lastMatch string
+	riot.LeagueEntry
 }
 
 func AddToDB(name string, hashtag string, region string) error {
@@ -61,6 +62,16 @@ func getFollows() ([]checkMatch, error) {
 		if len(lastMatches) > 0 {
 			newUser.lastMatch = lastMatches[0]
 		}
+		region2 := "euw1"
+		if user.Region == "AMERICAS" {
+			region2 = "na1"
+		}
+		rankedStuff, err := riot.RankedStats(user.Puuid, apiCfg.apiKey, region2)
+		if err != nil {
+			fmt.Println(err)
+			return returnUsers, err
+		}
+		newUser.LeagueEntry = rankedStuff
 		returnUsers = append(returnUsers, newUser)
 	}
 	return returnUsers, nil

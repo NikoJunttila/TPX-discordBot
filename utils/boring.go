@@ -68,7 +68,39 @@ func InsultRes() string {
 	_ = json.Unmarshal(body, &ins)
 	return ins.Insult
 }
+func CheckPromotionDemotion(previousTier, previousRank, currentTier, currentRank string) (string, bool) {
+	tierOrder := []string{"BRONZE", "SILVER", "GOLD", "PLATINUM", "DIAMOND", "MASTER", "GRANDMASTER", "CHALLENGER"}
+	rankOrder := []string{"IV", "III", "II", "I"}
 
+	previousTierIndex := indexOf(tierOrder, previousTier)
+	currentTierIndex := indexOf(tierOrder, currentTier)
+	demote := "https://tenor.com/fi/view/f1-fernando-alonso-twitter-alonso-formula-one-gif-15288827103445224492"
+	promote := "https://tenor.com/fi/view/fernando-alonso-fernando-alonso-f1-formula-1-gif-15409674451501385698"
+	if currentTierIndex > previousTierIndex {
+		return fmt.Sprintf("Promoted to a higher tier to %s %s \n %s", currentTier, currentRank, promote), true
+	} else if currentTier == previousTier {
+		previousRankIndex := indexOf(rankOrder, previousRank)
+		currentRankIndex := indexOf(rankOrder, currentRank)
+
+		if currentRankIndex > previousRankIndex {
+			return fmt.Sprintf("Promoted within the same tier to %s %s \n %s", currentTier, currentRank, promote), true
+		} else if currentRankIndex < previousRankIndex {
+			return fmt.Sprintf("Demoted within the same tier to %s %s \n %s", currentTier, currentRank, demote), true
+		}
+	} else {
+		return fmt.Sprintf("Demoted to a lower tier to %s %s \n %s", currentTier, currentRank, demote), true
+	}
+	return "No change", false
+}
+
+func indexOf(slice []string, item string) int {
+	for i, v := range slice {
+		if v == item {
+			return i
+		}
+	}
+	return -1
+}
 func IncrementAndWriteToFile(filename string) (int, error) {
 	// Read the content of the file
 	content, err := os.ReadFile(filename)
