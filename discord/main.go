@@ -70,7 +70,6 @@ func Discord() {
 	/* 	ruleID := setupAutoModerationRule(guildID, channelID)
 	   	defer s.AutoModerationRuleDelete(guildID, ruleID) */
 
-	// Wait here until CTRL-C or other term signal is received.
 	utils.WaitForInterruptSignal()
 	//true to remove slash commands from bot
 	removeCommands := false

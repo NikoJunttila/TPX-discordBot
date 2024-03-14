@@ -16,7 +16,6 @@ var buffer = make([][]byte, 0)
 
 func loadSound(sound string) error {
 	fileToPlay := fmt.Sprint("sounds/", sound, ".dca")
-	fmt.Println(fileToPlay)
 	file, err := os.Open(fileToPlay)
 	if err != nil {
 		fmt.Println("Error opening dca file :", err)
@@ -99,7 +98,7 @@ func voiceStateUpdate(s *discordgo.Session, m *discordgo.VoiceStateUpdate) {
 		{id: "223070624438943745", sound: "fart"},
 		{id: "660136166515015711", sound: "chipi"},
 		{id: "383917745059921930", sound: "vili"},
-		//{id: "1004146544322302032", sound: "vitus"},
+		{id: "1004146544322302032", sound: "vitus2"},
 	}
 	var usersOut = []usersSounds{
 		{id: "685511498641965089", sound: "bzio"},
@@ -127,7 +126,7 @@ func voiceStateUpdate(s *discordgo.Session, m *discordgo.VoiceStateUpdate) {
 		if !found {
 			delete(previousVoiceStates, userID)
 			user, _ := s.User(userID)
-			fmt.Println(user.Username, " has left the voice channel")
+			log.Println(user.Username, " has left the voice channel")
 			for _, u := range usersOut {
 				if userID == u.id {
 					err := playSound(s, m.GuildID, vsID, u.sound)
@@ -141,10 +140,9 @@ func voiceStateUpdate(s *discordgo.Session, m *discordgo.VoiceStateUpdate) {
 
 	for _, vs := range guild.VoiceStates {
 		user, _ := s.User(vs.UserID)
-		fmt.Print(user.Username, ", ")
 		if previousVoiceState, ok := previousVoiceStates[vs.UserID]; ok {
 			if previousVoiceState.ChannelID != vs.ChannelID {
-				fmt.Printf("User %s (%s#%s) has moved from channel %s to %s\n", vs.UserID, user.Username, user.Discriminator, previousVoiceState.ChannelID, vs.ChannelID)
+				log.Printf("User %s (%s#%s) has moved from channel %s to %s\n", vs.UserID, user.Username, user.Discriminator, previousVoiceState.ChannelID, vs.ChannelID)
 			}
 		} else {
 			log.Printf("User %s (%s#%s) has joined channel %s\n", vs.UserID, user.Username, user.Discriminator, vs.ChannelID)
@@ -159,5 +157,4 @@ func voiceStateUpdate(s *discordgo.Session, m *discordgo.VoiceStateUpdate) {
 		}
 		previousVoiceStates[vs.UserID] = vs
 	}
-	fmt.Println("")
 }

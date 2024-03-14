@@ -66,12 +66,13 @@ func GetMatch(matchId string, puuID string, country string, apiKey string) (stri
 	}
 	for _, p := range matchInfo.Info.Participants {
 		if p.Puuid == puuID {
-			result = fmt.Sprintf("New %s game! \nPlayer: %s\nRole: %s , Champion: %s, lvl: %d\nKills: %d, Deaths: %d Assists: %d\nAlly jg camps stolen: %d, Enemy camps stolen: %d\nVisionWards placed: %d. Wards total placed: %d\n", queType, p.RiotName, p.RoleNew, p.ChampionName, p.ChampLevel, p.Kills, p.Deaths, p.Assists, p.JgCampsStolen, p.EnemyJGCampsStolen, p.Wards, p.WardsPlaces)
-			if p.TimeSpentDead > 60 {
-				result += fmt.Sprintf("Time wasted on dying %0.2fmin.\n", float32(p.TimeSpentDead)/60)
-			} else {
-				result += fmt.Sprintf("Time spent with gray screen %ds.\n", p.TimeSpentDead)
-			}
+			result = fmt.Sprintf("New %s game %dmin! \nPlayer: %s\nRole: %s , Champion: %s, lvl: %d\nK/D/A: %d/%d/%d\nVisionWards placed: %d. Wards total placed: %d\n", queType, matchInfo.Info.GameDuration/60, p.RiotName, p.RoleNew, p.ChampionName, p.ChampLevel, p.Kills, p.Deaths, p.Assists, p.Wards, p.WardsPlaces)
+			//result += fmt.Sprintf("Ally jg camps stolen: %d, Enemy camps stolen: %d\n",p.JgCampsStolen, p.EnemyJGCampsStolen,)
+			/* 			if p.TimeSpentDead > 60 {
+			   				result += fmt.Sprintf("Time wasted on dying %0.2fmin.\n", float32(p.TimeSpentDead)/60)
+			   			} else {
+			   				result += fmt.Sprintf("Time spent with gray screen %ds.\n", p.TimeSpentDead)
+			   			} */
 			result += fmt.Sprintf("Pings OMW: %d, KYS: %d, Missing: %d, GetBack: %d Danger: %d.\n", p.OnMyWayPings, p.KysPing, p.MissingPing, p.GetBackPings, p.DangerPing)
 			result += fmt.Sprintf("Total dmg: %d , per min: %.2f, \n", p.DmgDealt, p.Challenges.DmgPerMinute)
 			result += fmt.Sprintf("Lane minions first 10min: %d \n", p.Challenges.MinionsFirst10)

@@ -35,8 +35,8 @@ func setupCron(channelID string) {
 					if err != nil {
 						fmt.Println(err)
 					}
-					oldRank := fmt.Sprintf("Old rank %s: %s %dlp\n", user.Tier, user.Rank, user.LeaguePoints)
-					newRank := fmt.Sprintf("New rank %s: %s %dlp\n", newRankStats.Tier, newRankStats.Rank, newRankStats.LeaguePoints)
+					oldRank := fmt.Sprintf("%s: %s %dlp --> ", user.Tier, user.Rank, user.LeaguePoints)
+					newRank := fmt.Sprintf("%s: %s %dlp\n", newRankStats.Tier, newRankStats.Rank, newRankStats.LeaguePoints)
 					result += oldRank
 					result += newRank
 					usersToCheck[i].LeagueEntry = newRankStats

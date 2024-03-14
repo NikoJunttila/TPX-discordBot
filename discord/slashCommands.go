@@ -30,6 +30,27 @@ var (
 			},
 		},
 		{
+			Name: "live",
+			// All commands and options must have a description
+			// Commands/options without description will fail the registration
+			// of the command.
+			Description: "check players live game",
+			Options: []*discordgo.ApplicationCommandOption{
+				{
+					Type:        discordgo.ApplicationCommandOptionString,
+					Name:        "name",
+					Description: "account name",
+					Required:    true,
+				},
+				{
+					Type:        discordgo.ApplicationCommandOptionString,
+					Name:        "hashtag",
+					Description: "String option",
+					Required:    true,
+				},
+			},
+		},
+		{
 			Name:        "highscores",
 			Description: "highscores for N-word count",
 		},
@@ -118,6 +139,33 @@ var (
 					sendTag(s, response, i.ChannelID, name)
 					return
 				}
+			}
+			s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+				Type: discordgo.InteractionResponseChannelMessageWithSource,
+				Data: &discordgo.InteractionResponseData{
+					Content: response,
+				},
+			})
+		},
+		"live": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+			options := i.ApplicationCommandData().Options
+
+			// Or convert the slice into a map
+			optionMap := make(map[string]*discordgo.ApplicationCommandInteractionDataOption, len(options))
+			for _, opt := range options {
+				optionMap[opt.Name] = opt
+			}
+			var name string
+			var hashtag string
+			if option, ok := optionMap["name"]; ok {
+				name = option.StringValue()
+			}
+			if option, ok := optionMap["hashtag"]; ok {
+				hashtag = option.StringValue()
+			}
+			response, err := riot.LiveGamePlayersStatsFormattedToString(apiCfg.apiKey, name, hashtag)
+			if err != nil {
+				fmt.Println(err)
 			}
 			s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
 				Type: discordgo.InteractionResponseChannelMessageWithSource,

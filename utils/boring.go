@@ -69,13 +69,13 @@ func InsultRes() string {
 	return ins.Insult
 }
 func CheckPromotionDemotion(previousTier, previousRank, currentTier, currentRank string) (string, bool) {
-	tierOrder := []string{"BRONZE", "SILVER", "GOLD", "PLATINUM", "DIAMOND", "MASTER", "GRANDMASTER", "CHALLENGER"}
+	tierOrder := []string{"IRON", "BRONZE", "SILVER", "GOLD", "PLATINUM", "DIAMOND", "MASTER", "GRANDMASTER", "CHALLENGER"}
 	rankOrder := []string{"IV", "III", "II", "I"}
 
 	previousTierIndex := indexOf(tierOrder, previousTier)
 	currentTierIndex := indexOf(tierOrder, currentTier)
-	demote := "https://tenor.com/fi/view/f1-fernando-alonso-twitter-alonso-formula-one-gif-15288827103445224492"
-	promote := "https://tenor.com/fi/view/fernando-alonso-fernando-alonso-f1-formula-1-gif-15409674451501385698"
+	demote := "https://media1.tenor.com/m/1CzTPzU3jCwAAAAd/f1-fernando-alonso.gif"
+	promote := "https://media1.tenor.com/m/1dopRQonB-IAAAAd/fernando-alonso-fernando.gif"
 	if currentTierIndex > previousTierIndex {
 		return fmt.Sprintf("Promoted to a higher tier to %s %s \n %s", currentTier, currentRank, promote), true
 	} else if currentTier == previousTier {
@@ -93,6 +93,33 @@ func CheckPromotionDemotion(previousTier, previousRank, currentTier, currentRank
 	return "No change", false
 }
 
+type tierLP struct {
+	tier string
+	lp   int
+}
+type rankLP struct {
+	rank string
+	lp   int
+}
+
+func RankToLP(tier, rank string, lp int) int {
+	tierOrder := []tierLP{{tier: "IRON", lp: 0}, {tier: "BRONZE", lp: 400}, {tier: "SILVER", lp: 800}, {tier: "GOLD", lp: 1200}, {tier: "PLATINUM", lp: 1600}, {tier: "EMERALD", lp: 2000}, {tier: "DIAMOND", lp: 2000}, {tier: "MASTER", lp: 2400}, {tier: "GRANDMASTER", lp: 2400}, {tier: "CHALLENGER", lp: 2400}}
+	rankOrder := []rankLP{{rank: "IV", lp: 0}, {rank: "III", lp: 100}, {rank: "II", lp: 200}, {rank: "I", lp: 300}}
+	lpTotal := 0
+	for _, t := range tierOrder {
+		if tier == t.tier {
+			lpTotal += t.lp
+		}
+	}
+	for _, t := range rankOrder {
+		if rank == t.rank {
+			lpTotal += t.lp
+		}
+	}
+	lpTotal += lp
+	return lpTotal
+
+}
 func indexOf(slice []string, item string) int {
 	for i, v := range slice {
 		if v == item {

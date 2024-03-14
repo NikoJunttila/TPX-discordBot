@@ -1,5 +1,26 @@
 package riot
 
+type GameData struct {
+	GameId            int           `json:"gameId"`
+	MapId             int           `json:"mapId"`
+	GameMode          string        `json:"gameMode"`
+	GameType          string        `json:"gameType"`
+	GameQueueConfigId int           `json:"gameQueueConfigId"`
+	Participants      []Participant `json:"participants"`
+}
+type Participant struct {
+	Puuid         string `json:"puuid"`
+	TeamId        int    `json:"teamId"`
+	Spell1Id      int    `json:"spell1Id"`
+	Spell2Id      int    `json:"spell2Id"`
+	ChampionId    int    `json:"championId"`
+	ProfileIconId int    `json:"profileIconId"`
+	SummonerName  string `json:"summonerName"`
+	RiotId        string `json:"riotId"`
+	Bot           bool   `json:"bot"`
+	SummonerId    string `json:"summonerId"`
+}
+
 type SummonerInfo struct {
 	ID            string `json:"id"`
 	AccountID     string `json:"accountId"`
