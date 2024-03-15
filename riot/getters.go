@@ -82,8 +82,6 @@ func GetMatch(matchId string, puuID string, country string, apiKey string) (stri
 			} else {
 				result += fmt.Sprintf("Game lost: GG %s GAP GIT GUUD NOOB\n\n", p.RoleNew)
 			}
-
-			fmt.Println(result)
 		}
 	}
 	ranked := false

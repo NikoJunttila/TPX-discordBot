@@ -82,7 +82,7 @@ func getRankedStats(id string, apiKey string, region string) (LeagueEntry, error
 		return leagueEntries[0], err
 	}
 	var noobPlayer LeagueEntry
-	if len(leagueEntries) <= 1 {
+	if len(leagueEntries) < 1 {
 		noobPlayer.Rank = "IV"
 		noobPlayer.Tier = "IRON"
 		noobPlayer.LeaguePoints = 1
@@ -93,8 +93,16 @@ func getRankedStats(id string, apiKey string, region string) (LeagueEntry, error
 	}
 	if leagueEntries[0].QueueType == "RANKED_SOLO_5x5" {
 		return leagueEntries[0], nil
-	} else {
+	} else if len(leagueEntries) > 1 {
 		return leagueEntries[1], nil
+	} else {
+		noobPlayer.Rank = "IV"
+		noobPlayer.Tier = "IRON"
+		noobPlayer.LeaguePoints = 1
+		noobPlayer.Wins = 1
+		noobPlayer.Losses = 1
+		noobPlayer.SummonerName = "only flex noob"
+		return noobPlayer, nil
 	}
 }
 func RankedStats(puuID string, apiKey string, region string) (LeagueEntry, error) {
