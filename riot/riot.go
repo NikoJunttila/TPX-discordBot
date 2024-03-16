@@ -14,7 +14,7 @@ func CheckLastMatch(lastGameID string, puuID string, country string, apiKey stri
 		return "", false
 	}
 	if lastGameID != newGameID[0] {
-		fmt.Print("\n******************************\n*\n* new match \n*\n*******************************\n")
+		fmt.Print("\n******************************\n*new match\n")
 		return newGameID[0], true
 	}
 	return lastGameID, false
