@@ -79,11 +79,6 @@ func playSound(s *discordgo.Session, guildID, channelID, sound string) (err erro
 	return nil
 }
 
-type usersSounds struct {
-	id    string
-	sound string
-}
-
 var (
 	//previousVoiceState = make(map[string]*discordgo.VoiceState)
 	mutex            = &sync.Mutex{}
@@ -92,16 +87,13 @@ var (
 )
 
 func voiceStateUpdate(s *discordgo.Session, m *discordgo.VoiceStateUpdate) {
-	var users = []usersSounds{
-		{id: "685511498641965089", sound: "bzi"},
-		{id: "249254722668724225", sound: "allu"},
-		{id: "223070624438943745", sound: "fart"},
-		{id: "660136166515015711", sound: "chipi"},
-		{id: "383917745059921930", sound: "vili"},
-		{id: "1004146544322302032", sound: "vitus2"},
-	}
-	var usersOut = []usersSounds{
-		{id: "685511498641965089", sound: "bzio"},
+	var users = map[string]string{
+		"685511498641965089":  "bzi",
+		"249254722668724225":  "allu",
+		"223070624438943745":  "fart",
+		"660136166515015711":  "chipi",
+		"383917745059921930":  "vili",
+		"1004146544322302032": "vitus2",
 	}
 	mutex.Lock()
 	defer mutex.Unlock()
@@ -115,11 +107,9 @@ func voiceStateUpdate(s *discordgo.Session, m *discordgo.VoiceStateUpdate) {
 
 	for userID := range previousVoiceStates {
 		found := false
-		var vsID string
 		for _, vs := range guild.VoiceStates {
 			if vs.UserID == userID {
 				found = true
-				vsID = vs.ChannelID
 				break
 			}
 		}
@@ -127,14 +117,6 @@ func voiceStateUpdate(s *discordgo.Session, m *discordgo.VoiceStateUpdate) {
 			delete(previousVoiceStates, userID)
 			user, _ := s.User(userID)
 			log.Println(user.Username, " has left the voice channel")
-			for _, u := range usersOut {
-				if userID == u.id {
-					err := playSound(s, m.GuildID, vsID, u.sound)
-					if err != nil {
-						fmt.Println("Error playing sound:", err)
-					}
-				}
-			}
 		}
 	}
 
@@ -146,12 +128,10 @@ func voiceStateUpdate(s *discordgo.Session, m *discordgo.VoiceStateUpdate) {
 			}
 		} else {
 			log.Printf("User %s (%s#%s) has joined channel %s\n", vs.UserID, user.Username, user.Discriminator, vs.ChannelID)
-			for _, u := range users {
-				if vs.UserID == u.id {
-					err := playSound(s, m.GuildID, vs.ChannelID, u.sound)
-					if err != nil {
-						fmt.Println("Error playing sound:", err)
-					}
+			if sound, ok := users[vs.UserID]; ok {
+				err := playSound(s, m.GuildID, vs.ChannelID, sound)
+				if err != nil {
+					fmt.Println("Error playing sound:", err)
 				}
 			}
 		}

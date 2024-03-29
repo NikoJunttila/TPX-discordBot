@@ -9,6 +9,7 @@ import (
 	"github.com/joho/godotenv"
 	"github.com/nikojunttila/discord/internal/database"
 
+	"github.com/gempir/go-twitch-irc/v4"
 	_ "github.com/lib/pq"
 	"github.com/nikojunttila/discord/utils"
 )
@@ -53,8 +54,38 @@ func Discord() {
 		DB:     database.New(connection),
 		apiKey: apiKey,
 	}
-
 	initializeDiscordHandlers()
+
+	//twitch stuff
+	twitchCH := utils.GetEnvVariable("tchannel")
+	//channel ID that shows messages in discord
+	tTodChannel := utils.GetEnvVariable("tTodChannel")
+	oauth := utils.GetEnvVariable("oauth")
+	client := twitch.NewClient("tpx_bot", oauth)
+
+	client.OnPrivateMessage(func(message twitch.PrivateMessage) {
+		if message.User.DisplayName == "tpx_bot" {
+			return
+		}
+		sendMessageToChannel(s, fmt.Sprintf("%s: %s\n", message.User.DisplayName, message.Message), tTodChannel)
+	})
+
+	client.Join(twitchCH)
+	s.AddHandler(func(s *discordgo.Session, m *discordgo.MessageCreate) {
+		if m.Author.ID == s.State.User.ID {
+			return
+		}
+		if m.ChannelID == tTodChannel {
+			user, _ := s.User(m.Author.ID)
+			//m.Author
+			response := fmt.Sprintf("%s: %s", user.Username, m.Content)
+			client.Say(twitchCH, response)
+		}
+	})
+	go client.Connect()
+	defer client.Disconnect()
+	//twitch stuff end
+
 	err = s.Open()
 	if err != nil {
 		fmt.Println("error opening connection,", err)
@@ -79,3 +110,14 @@ func Discord() {
 
 	log.Println("Gracefully shutting down.")
 }
+
+/* func sendTwitchMessage(s *discordgo.Session, m *discordgo.MessageCreate, client *twitch.Client) {
+	// Ignore all messages created by the bot itself
+	// This isn't required in this specific example but it's a good practice.
+	if m.Author.ID == s.State.User.ID {
+		return
+	}
+	if m.ChannelID == "400298523263893505" {
+		client.Say("randomderppy", m.Content)
+	}
+} */

@@ -277,7 +277,7 @@ var (
 					},
 				})
 			} else {
-				sendGameStatus(s, response, i.ChannelID)
+				sendMessageToChannel(s, response, i.ChannelID)
 			}
 		},
 		"followups": func(s *discordgo.Session, i *discordgo.InteractionCreate) {

@@ -45,7 +45,7 @@ func setupCron(channelID string) {
 						result += promote
 					}
 				}
-				sendGameStatus(s, result, channelID)
+				sendMessageToChannel(s, result, channelID)
 			}
 		}
 	})

@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/nikojunttila/discord/discord"
+	discord "github.com/nikojunttila/discord/discordStuff"
 )
 
 func main() {
