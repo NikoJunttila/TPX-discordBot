@@ -45,10 +45,8 @@ func Discord() {
 	if err != nil {
 		log.Fatal("cant connect to database", err)
 	}
-	//guildID := utils.GetEnvVariable("GUILD_ID")
-	guildID := utils.GetEnvVariable("TPX_ID")
-	//channelID := utils.GetEnvVariable("channel_ID")
-	channelID := utils.GetEnvVariable("general2")
+	guildID := utils.GetEnvVariable("GUILD_ID")
+	channelID := utils.GetEnvVariable("channel_ID")
 	apiKey := utils.GetEnvVariable("riot_API")
 	apiCfg = apiConfig{
 		DB:     database.New(connection),
@@ -97,7 +95,7 @@ func Discord() {
 	registerDiscordCommands("")
 	setupCron(channelID)
 
-	//auto mod rules
+	//this creates auto mod rules when uncommented to discord guild
 	/* 	ruleID := setupAutoModerationRule(guildID, channelID)
 	   	defer s.AutoModerationRuleDelete(guildID, ruleID) */
 
