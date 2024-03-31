@@ -1,3 +1,6 @@
+# github.com/antlr4-go/antlr/v4 v4.13.0
+## explicit; go 1.20
+github.com/antlr4-go/antlr/v4
 # github.com/bwmarrin/discordgo v0.27.1
 ## explicit; go 1.13
 github.com/bwmarrin/discordgo
@@ -15,18 +18,40 @@ github.com/gorilla/websocket
 github.com/joho/godotenv
 # github.com/lib/pq v1.10.9
 ## explicit; go 1.13
-github.com/lib/pq
-github.com/lib/pq/oid
-github.com/lib/pq/scram
+# github.com/libsql/sqlite-antlr4-parser v0.0.0-20240327125255-dbf53b6cbf06
+## explicit; go 1.19
+github.com/libsql/sqlite-antlr4-parser/sqliteparser
+github.com/libsql/sqlite-antlr4-parser/sqliteparserutils
 # github.com/robfig/cron/v3 v3.0.1
 ## explicit; go 1.12
 github.com/robfig/cron/v3
+# github.com/tursodatabase/libsql-client-go v0.0.0-20240327144008-dd14b387afb3
+## explicit; go 1.20
+github.com/tursodatabase/libsql-client-go/libsql
+github.com/tursodatabase/libsql-client-go/libsql/internal/hrana
+github.com/tursodatabase/libsql-client-go/libsql/internal/http
+github.com/tursodatabase/libsql-client-go/libsql/internal/http/hranaV2
+github.com/tursodatabase/libsql-client-go/libsql/internal/http/shared
+github.com/tursodatabase/libsql-client-go/libsql/internal/ws
 # golang.org/x/crypto v0.17.0
 ## explicit; go 1.18
 golang.org/x/crypto/internal/alias
 golang.org/x/crypto/internal/poly1305
 golang.org/x/crypto/nacl/secretbox
 golang.org/x/crypto/salsa20/salsa
+# golang.org/x/exp v0.0.0-20240325151524-a685a6edb6d8
+## explicit; go 1.20
+golang.org/x/exp/constraints
+golang.org/x/exp/slices
 # golang.org/x/sys v0.15.0
 ## explicit; go 1.18
 golang.org/x/sys/cpu
+# nhooyr.io/websocket v1.8.10
+## explicit; go 1.19
+nhooyr.io/websocket
+nhooyr.io/websocket/internal/bpool
+nhooyr.io/websocket/internal/errd
+nhooyr.io/websocket/internal/util
+nhooyr.io/websocket/internal/wsjs
+nhooyr.io/websocket/internal/xsync
+nhooyr.io/websocket/wsjson

@@ -10,8 +10,8 @@ import (
 	"github.com/nikojunttila/discord/internal/database"
 
 	"github.com/gempir/go-twitch-irc/v4"
-	_ "github.com/lib/pq"
 	"github.com/nikojunttila/discord/utils"
+	_ "github.com/tursodatabase/libsql-client-go/libsql"
 )
 
 type apiConfig struct {
@@ -41,7 +41,7 @@ func init() {
 
 func Discord() {
 	dbURL := utils.GetEnvVariable("DB_URL")
-	connection, err := sql.Open("postgres", dbURL)
+	connection, err := sql.Open("libsql", dbURL)
 	if err != nil {
 		log.Fatal("cant connect to database", err)
 	}
