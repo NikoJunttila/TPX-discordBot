@@ -25,7 +25,7 @@ go mod tidy
 3. **Set Up Environment Variables:**
 create .env file. copy example.env variables there and fill them with your own apikeys/discord channels ids
 4. **Run the Bot:**
-go build -o discordbot //change discordbot to anything you want to.
+go build -o discordbot //change discordbot to anything you want to.<br>
 execute discordbot
 ## Usage
 
