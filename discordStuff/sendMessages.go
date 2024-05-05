@@ -55,7 +55,7 @@ func sendCat(s *discordgo.Session, userID string) {
 }
 func sendCatLottery(s *discordgo.Session, userID string) {
 	randomNumber := rand.Intn(1000)
-	if randomNumber == 5 {
+	if randomNumber != 5 {
 		return
 	}
 	// We create the private channel with the user who sent the message.
