@@ -53,6 +53,37 @@ func sendCat(s *discordgo.Session, userID string) {
 		)
 	}
 }
+func sendCatLottery(s *discordgo.Session, userID string) {
+	randomNumber := rand.Intn(1000)
+	if randomNumber == 5 {
+		return
+	}
+	// We create the private channel with the user who sent the message.
+	channel, err := s.UserChannelCreate(userID)
+	if err != nil {
+		fmt.Println("error creating channel:", err)
+		s.ChannelMessageSend(
+			"400298523263893505",
+			"Something went wrong while sending the DM!",
+		)
+		return
+	}
+	catImg, err := utils.CatPic()
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	res := fmt.Sprintf("GZ you won random derp sponsored cat lottery that is drawn every hour with 1/1000 chance to win \n. Contact Random Derp for free 10€ also have a cat pic \n %s", catImg)
+	_, err = s.ChannelMessageSend(channel.ID, res)
+	if err != nil {
+		fmt.Println("error sending DM message:", err)
+		s.ChannelMessageSend(
+			"400298523263893505",
+			"Failed to send you a DM. "+
+				"Did you disable DM in your privacy settings?",
+		)
+	}
+}
 func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 	// Ignore all messages created by the bot itself
 	// This isn't required in this specific example but it's a good practice.

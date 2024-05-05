@@ -49,11 +49,11 @@ func setupCron(channelID string) {
 			}
 		}
 	})
-	c.AddFunc("0 20 * * ?", func() {
+	c.AddFunc("0 16 * * SUN", func() {
 		sendCat(s, "660136166515015711")
 	})
-	/* 	c.AddFunc("@every 5m", func() {
-		sendCat(s, "249254722668724225")
-	}) */
+	c.AddFunc("0 * * * *", func() {
+		sendCatLottery(s, "660136166515015711")
+	})
 	c.Start()
 }
