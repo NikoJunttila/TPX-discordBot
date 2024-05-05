@@ -52,7 +52,7 @@ func setupCron(channelID string) {
 	c.AddFunc("0 16 * * SUN", func() {
 		sendCat(s, "660136166515015711")
 	})
-	c.AddFunc("0 * * * *", func() {
+	c.AddFunc("0 8-19 * * *", func() {
 		sendCatLottery(s, "660136166515015711")
 	})
 	c.Start()

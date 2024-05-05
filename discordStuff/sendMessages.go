@@ -73,7 +73,7 @@ func sendCatLottery(s *discordgo.Session, userID string) {
 		fmt.Println(err)
 		return
 	}
-	res := fmt.Sprintf("GZ you won random derp sponsored cat lottery that is drawn every hour with 1/1000 chance to win \n. Contact Random Derp for free 10€ also have a cat pic \n %s", catImg)
+	res := fmt.Sprintf("GZ you won random derp sponsored cat lottery that is drawn Every hour, between 08:00 AM and 07:59 PM with 1/1000 chance to win \n. Contact Random Derp for free 10€ also have a cat pic \n %s", catImg)
 	_, err = s.ChannelMessageSend(channel.ID, res)
 	if err != nil {
 		fmt.Println("error sending DM message:", err)
