@@ -18,9 +18,21 @@ func setupCron(channelID string) {
 	c := cron.New()
 	c.AddFunc("@every 1m", func() {
 		for i, user := range usersToCheck {
+			if !user.inGame {
+				_, err := riot.LiveGamePlayersPuuIDSv5(apiCfg.apiKey, user.puuID)
+				if err == nil {
+					liveGame, err := riot.LiveGamePlayersStatsPuuIDSkipToString(apiCfg.apiKey, user.puuID, user.name)
+					if err == nil {
+						usersToCheck[i].inGame = true
+						sendMessageToChannel(s, liveGame, channelID)
+					}
+				}
+			}
+			//match checking here before live game check
 			newMatch, check := riot.CheckLastMatch(user.lastMatch, user.puuID, user.region, apiCfg.apiKey)
 			if check {
 				usersToCheck[i].lastMatch = newMatch
+				usersToCheck[i].inGame = false
 				result, ranked, err := riot.GetMatch(newMatch, user.puuID, user.region, apiCfg.apiKey)
 				if err != nil {
 					fmt.Println("Loop check: ", err)
@@ -52,7 +64,7 @@ func setupCron(channelID string) {
 	c.AddFunc("0 16 * * SUN", func() {
 		sendCat(s, "660136166515015711")
 	})
-	c.AddFunc("0 8-19 * * *", func() {
+	c.AddFunc("0 8-20 * * *", func() {
 		sendCatLottery(s, "660136166515015711")
 	})
 	c.Start()

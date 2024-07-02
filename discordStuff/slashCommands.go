@@ -166,6 +166,7 @@ var (
 			response, err := riot.LiveGamePlayersStatsFormattedToString(apiCfg.apiKey, name, hashtag)
 			if err != nil {
 				fmt.Println(err)
+				return
 			}
 			s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
 				Type: discordgo.InteractionResponseChannelMessageWithSource,

@@ -81,6 +81,7 @@ func getRankedStats(id string, apiKey string, region string) (LeagueEntry, error
 		fmt.Println("Error decoding JSON:", err)
 		return leagueEntries[0], err
 	}
+	fmt.Println(leagueEntries)
 	var noobPlayer LeagueEntry
 	if len(leagueEntries) < 1 {
 		noobPlayer.Rank = "IV"
@@ -136,6 +137,10 @@ func LiveGamePlayersPuuIDS(apiKey, id string) ([]string, error) {
 		return []string{}, err
 	}
 	defer res.Body.Close()
+	if res.StatusCode != http.StatusOK {
+		fmt.Println(res)
+		return []string{}, fmt.Errorf("received non-200 response code: %d", res.StatusCode)
+	}
 	body, _ := io.ReadAll(res.Body)
 	err = json.Unmarshal(body, &gameParticipants)
 	if err != nil {
@@ -201,5 +206,91 @@ func LiveGamePlayersStatsFormattedToString(apiKey, name, hashtag string) (string
 	}
 	result += fmt.Sprintf("Blue: total  %dlp avg %dlp Red: %dlp, %dlp\n", totalLPBlue, totalLPBlue/5, totalLPRed, totalLPRed/5)
 	result += fmt.Sprintf("Blue total pisslow lp:%d, red:%dlp, difference:%d", totalBIGLPBlue, totalBIGLPRed, totalBIGLPBlue-totalBIGLPRed)
+	return result, nil
+}
+
+type withName struct {
+	puuID string
+	name  string
+}
+
+func LiveGamePlayersPuuIDSv5(apiKey, id string) ([]withName, error) {
+
+	var gameParticipants GameData
+	var participants []withName
+	url := fmt.Sprintf("https://euw1.api.riotgames.com/lol/spectator/v5/active-games/by-summoner/%s", id)
+
+	req, _ := http.NewRequest("GET", url, nil)
+	req.Header.Add("accept", "application/json")
+	req.Header.Set("X-Riot-Token", apiKey)
+	res, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return participants, err
+	}
+	defer res.Body.Close()
+	if res.StatusCode != http.StatusOK {
+		return participants, fmt.Errorf("received non-200 response code: %d", res.StatusCode)
+	}
+	body, _ := io.ReadAll(res.Body)
+	err = json.Unmarshal(body, &gameParticipants)
+	if err != nil {
+		return participants, err
+	}
+	for _, p := range gameParticipants.Participants {
+		var newP withName
+		newP.puuID = p.Puuid
+		newP.name = p.RiotId
+		participants = append(participants, newP)
+	}
+	return participants, nil
+}
+
+func liveGamePlayersStatsPuuidSkip(apiKey, puuID string) ([]LeagueEntry, error) {
+	var playersStats []LeagueEntry
+	players, err := LiveGamePlayersPuuIDSv5(apiKey, puuID)
+	if err != nil {
+		return playersStats, err
+	}
+	for _, p := range players {
+		ps, err := RankedStats(p.puuID, apiKey, "euw1")
+		if err != nil {
+			return playersStats, err
+		}
+		ps.SummonerName = p.name
+		playersStats = append(playersStats, ps)
+	}
+	return playersStats, nil
+}
+func LiveGamePlayersStatsPuuIDSkipToString(apiKey, puuID, name string) (string, error) {
+	stats, err := liveGamePlayersStatsPuuidSkip(apiKey, puuID)
+	if err != nil {
+		fmt.Println(err)
+		return "", err
+	}
+	var totalLPBlue int
+	var totalLPRed int
+	var totalBIGLPBlue int
+	var totalBIGLPRed int
+	result := fmt.Sprintf("%s is now in game! \nBlue team\n", name)
+	for i, s := range stats {
+		if i == 5 {
+			result += "\nRed Team\n"
+		}
+		if i < 5 {
+			wr := float64(s.Wins) / float64(s.Wins+s.Losses) * 100
+			result += fmt.Sprintf("%s: %s %s: %dlp Wins:%d Losses:%d wr:%.2f%%\n", s.SummonerName, s.Tier, s.Rank, s.LeaguePoints, s.Wins, s.Losses, wr)
+			totalLPBlue += s.LeaguePoints
+			lpGainz := utils.RankToLP(s.Tier, s.Rank, s.LeaguePoints)
+			totalBIGLPBlue += lpGainz
+		} else {
+			wr := float64(s.Wins) / float64(s.Wins+s.Losses) * 100
+			result += fmt.Sprintf("%s: %s %s: %dlp Wins:%d Losses:%d wr:%.2f%%\n", s.SummonerName, s.Tier, s.Rank, s.LeaguePoints, s.Wins, s.Losses, wr)
+			totalLPRed += s.LeaguePoints
+			lpGainz := utils.RankToLP(s.Tier, s.Rank, s.LeaguePoints)
+			totalBIGLPRed += lpGainz
+		}
+	}
+	result += fmt.Sprintf("Master+ Blue: total  %dlp avg %dlp | Red: %dlp avg: %dlp\n", totalLPBlue, totalLPBlue/5, totalLPRed, totalLPRed/5)
+	result += fmt.Sprintf("Below master lp: Blue total lp:%d, | red:%dlp, difference:%d", totalBIGLPBlue, totalBIGLPRed, totalBIGLPBlue-totalBIGLPRed)
 	return result, nil
 }

@@ -16,6 +16,7 @@ type checkMatch struct {
 	puuID     string
 	region    string
 	lastMatch string
+	inGame    bool
 	riot.LeagueEntry
 }
 
@@ -52,6 +53,7 @@ func getFollows() ([]checkMatch, error) {
 			name:      user.AccountName,
 			puuID:     user.Puuid,
 			region:    user.Region,
+			inGame:    false,
 			lastMatch: "", // Initialize lastMatch to avoid nil panic
 		}
 		lastMatches, err := riot.GetMatchHistory(user.Puuid, 1, user.Region, apiCfg.apiKey)
