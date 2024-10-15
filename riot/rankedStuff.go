@@ -55,23 +55,23 @@ func getRankedStats(id string, apiKey string, region string) (LeagueEntry, error
 	req2, err := http.NewRequest("GET", apiEndpoint2, nil)
 	if err != nil {
 		fmt.Println("Error creating request:", err)
-		return leagueEntries[0], err
+		return LeagueEntry{}, err
 	}
 	req2.Header.Set("X-Riot-Token", apiKey)
 	response2, err := client.Do(req2)
 	if err != nil {
 		fmt.Println("Error making HTTP request:", err)
-		return leagueEntries[0], err
+		return LeagueEntry{}, err
 	}
 	defer response2.Body.Close()
 	if response2.StatusCode != http.StatusOK {
 		fmt.Printf("Error2: %s\n", response2.Status)
-		return leagueEntries[0], err
+		return LeagueEntry{}, err
 	}
 	body2, err := io.ReadAll(response2.Body)
 	if err != nil {
 		fmt.Println("Error reading response body:", err)
-		return leagueEntries[0], err
+		return LeagueEntry{}, err
 	}
 	// Create a slice of LeagueEntry to unmarshal the JSON array
 
@@ -79,7 +79,7 @@ func getRankedStats(id string, apiKey string, region string) (LeagueEntry, error
 	err = json.Unmarshal(body2, &leagueEntries)
 	if err != nil {
 		fmt.Println("Error decoding JSON:", err)
-		return leagueEntries[0], err
+		return LeagueEntry{}, err
 	}
 	fmt.Println(leagueEntries)
 	var noobPlayer LeagueEntry
