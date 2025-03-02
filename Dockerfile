@@ -33,6 +33,9 @@ COPY --from=builder /app/discordbot .
 # Copy any config files if needed
 COPY --from=builder /app/config* ./
 
+# Copy the sounds directory
+COPY sounds/ ./sounds/
+
 # Expose port if your bot needs to listen on a port
 # EXPOSE 8080
 
