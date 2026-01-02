@@ -1,5 +1,5 @@
 # Build stage
-FROM golang:1.22-alpine AS builder
+FROM docker.io/library/golang:1.22-alpine AS builder
 # Set working directory
 WORKDIR /app
 # Install git for fetching dependencies
@@ -12,9 +12,8 @@ RUN go mod download
 COPY . .
 # Build the application
 RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o discordbot .
-
 # Final stage
-FROM alpine:latest
+FROM docker.io/library/alpine:latest
 # Install ca-certificates for HTTPS requests
 RUN apk --no-cache add ca-certificates
 WORKDIR /root/
