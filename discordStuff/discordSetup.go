@@ -16,15 +16,18 @@ func registerDiscordCommands(guildID string) {
 		registeredCommands[i] = cmd
 	}
 }
+
 func ready(s *discordgo.Session, event *discordgo.Ready) {
 	s.UpdateGameStatus(0, "Stalking tpx members")
 }
+
 func initializeDiscordHandlers() {
 	s.Identify.Intents = discordgo.IntentsGuilds | discordgo.IntentsGuildMessages | discordgo.IntentsGuildVoiceStates | discordgo.IntentMessageContent | discordgo.IntentAutoModerationExecution
 	s.AddHandler(ready)
 	s.AddHandler(apiCfg.badWordCounter)
 	s.AddHandler(messageCreate)
-	s.AddHandler(voiceStateUpdate)
+	// removed voice state as its gotten annoying and kinda bugged
+	// s.AddHandler(voiceStateUpdate)
 
 	s.AddHandler(func(s *discordgo.Session, r *discordgo.Ready) {
 		log.Printf("Logged in as: %v#%v", s.State.User.Username, s.State.User.Discriminator)
