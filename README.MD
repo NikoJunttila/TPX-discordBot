@@ -10,6 +10,8 @@ It's built using Golang and utilizes the Riot Games API for certain functionalit
   
 - **Riot Games API Integration**: Utilizes the Riot Games API to access data or functionalities related to Riot Games, enhancing the bot's capabilities for gaming communities.
 
+- **AI Assistant (Kimi/Moonshot)**: Use `/ask question:<text>` to ask the bot a question and get an AI-generated answer. Conversation history is kept per user (last few messages) so follow-ups have context; `/aiclear` resets your history. Set your `kimiapikey` env var (see `example.env`).
+
 - **PostgreSQL Database**: Stores necessary data in a PostgreSQL database for efficient data management and retrieval.
 
 ## Installation

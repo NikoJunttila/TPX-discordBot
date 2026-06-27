@@ -16,7 +16,7 @@ func setupCron(channelID string) {
 	}
 	//fmt.Println(usersToCheck)
 	c := cron.New()
-	c.AddFunc("@every 1m", func() {
+	c.AddFunc("@every 5m", func() {
 		for i, user := range usersToCheck {
 			if !user.inGame {
 				_, err := riot.LiveGamePlayersPuuIDSv5(apiCfg.apiKey, user.puuID)
@@ -28,7 +28,7 @@ func setupCron(channelID string) {
 					}
 				}
 			}
-			//match checking here before live game check
+			// match checking here before live game check
 			newMatch, check := riot.CheckLastMatch(user.lastMatch, user.puuID, user.region, apiCfg.apiKey)
 			if check {
 				usersToCheck[i].lastMatch = newMatch

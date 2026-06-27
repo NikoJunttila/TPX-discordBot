@@ -15,8 +15,9 @@ import (
 )
 
 type apiConfig struct {
-	DB     *database.Queries
-	apiKey string
+	DB      *database.Queries
+	apiKey  string
+	kimiKey string
 }
 
 var (
@@ -49,8 +50,9 @@ func Discord() {
 	channelID := utils.GetEnvVariable("channel_ID")
 	apiKey := utils.GetEnvVariable("riot_API")
 	apiCfg = apiConfig{
-		DB:     database.New(connection),
-		apiKey: apiKey,
+		DB:      database.New(connection),
+		apiKey:  apiKey,
+		kimiKey: utils.GetEnvVariable("kimiapikey"),
 	}
 	initializeDiscordHandlers()
 

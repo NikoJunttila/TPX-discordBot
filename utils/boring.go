@@ -23,6 +23,43 @@ func GetEnvVariable(key string) string {
 	}
 	return value
 }
+
+// SplitMessage splits text into chunks no longer than limit runes, preferring to
+// break on a newline (then a space) near the limit so words and lines stay
+// intact. It counts runes, not bytes, so multi-byte UTF-8 is never split.
+func SplitMessage(text string, limit int) []string {
+	runes := []rune(text)
+	if limit <= 0 || len(runes) <= limit {
+		if len(runes) == 0 {
+			return nil
+		}
+		return []string{text}
+	}
+	var chunks []string
+	for len(runes) > limit {
+		cut := limit
+		if idx := lastIndexRune(runes[:limit], '\n'); idx > 0 {
+			cut = idx + 1
+		} else if idx := lastIndexRune(runes[:limit], ' '); idx > 0 {
+			cut = idx + 1
+		}
+		chunks = append(chunks, string(runes[:cut]))
+		runes = runes[cut:]
+	}
+	if len(runes) > 0 {
+		chunks = append(chunks, string(runes))
+	}
+	return chunks
+}
+
+func lastIndexRune(runes []rune, target rune) int {
+	for i := len(runes) - 1; i >= 0; i-- {
+		if runes[i] == target {
+			return i
+		}
+	}
+	return -1
+}
 func CatPic() (string, error) {
 	type catType struct {
 		Url string `json:"url"`

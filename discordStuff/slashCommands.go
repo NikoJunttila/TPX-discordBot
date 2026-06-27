@@ -116,9 +116,27 @@ var (
 				},
 			},
 		},
+		{
+			Name:        "ask",
+			Description: "Ask the AI a question",
+			Options: []*discordgo.ApplicationCommandOption{
+				{
+					Type:        discordgo.ApplicationCommandOptionString,
+					Name:        "question",
+					Description: "Your question for the AI",
+					Required:    true,
+				},
+			},
+		},
+		{
+			Name:        "aiclear",
+			Description: "Clear your AI conversation history",
+		},
 	}
 
 	commandHandlers = map[string]func(s *discordgo.Session, i *discordgo.InteractionCreate){
+		"ask":     askHandler,
+		"aiclear": aiClearHandler,
 		"hello": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			options := i.ApplicationCommandData().Options
 
